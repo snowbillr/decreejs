@@ -1,0 +1,86 @@
+<!doctype html>
+<html class="no-js">
+<head>
+    <meta charset="utf-8">
+    <title>decree js</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <!-- build:css(.) styles/vendor.css -->
+    <!-- bower:css -->
+    <!-- endbower -->
+    <!-- endbuild -->
+    <!-- build:css(.tmp) styles/main.css -->
+    <link rel="stylesheet" href="styles/main.css">
+    <!-- endbuild -->
+</head>
+<body>
+    <!--[if lt IE 10]>
+    <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
+                                                                                                                        your
+                                                                                                                        browser</a>
+                           to improve your experience.</p>
+    <![endif]-->
+
+    <header>
+        <h1>Decree JS</h1>
+
+        <h2>A fluent API for responding to keyboard input</h2>
+    </header>
+
+    <div class="tutorial">
+        <p>
+            Here's how you would respond to a single keypress.
+            <pre>
+decree('a').perform(function() {
+    console.log('"a" was pressed');
+});
+            </pre>
+        Go ahead and try it out by opening up your console and typing 'a' while the page is in focus. The
+        <code>decree</code> method takes in a single argument, the key you are asking decree to listen for. The <code>perform</code>
+        method takes in a function as a callback to be invoked once the key sequence happens. <code>perform</code> is
+        always the last method called on a decree.
+        </p>
+        <p>
+            To make a chain of sequential key presses, use the <code>then</code> method.
+            <pre>
+decree('a').then('s').then('d').then('f').perform(console.log(function() {
+    console.log('"asdf" was pressed');
+});
+            </pre>
+            Note that the last method called here was <code>perform</code>.
+        </p>
+        <p>
+            Key sequences can be overloaded!
+        </p>
+    </div>
+
+    <!-- build:js(.) scripts/vendor.js -->
+    <!-- bower:js -->
+    <!-- endbower -->
+    <!-- endbuild -->
+
+    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+    <script>
+        (function(b, o, i, l, e, r) {
+            b.GoogleAnalyticsObject = l;
+            b[l] || (b[l] =
+                    function() {
+                        (b[l].q = b[l].q || []).push(arguments)
+                    });
+            b[l].l = +new Date;
+            e = o.createElement(i);
+            r = o.getElementsByTagName(i)[0];
+            e.src = '//www.google-analytics.com/analytics.js';
+            r.parentNode.insertBefore(e, r)
+        }(window, document, 'script', 'ga'));
+        ga('create', 'UA-XXXXX-X');
+        ga('send', 'pageview');
+    </script>
+
+    <!-- build:js({app,.tmp}) scripts/main.js -->
+    <script src="scripts/decree.js"></script>
+    <!-- endbuild -->
+</body>
+</html>
