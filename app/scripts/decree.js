@@ -41,10 +41,11 @@
 
     var timeThreshold = 500; //milliseconds
     var timeOfLastPress;
-
     var cancelEndCurrentDecree;
-    var matchingDecreeStates = [];
+
+    var matchingDecreeIndices = [];
     var isFirstKey = true;
+    var isMatch = true;
 
     var decreeTree = [
         {
@@ -65,7 +66,7 @@
                 {
                     keyCodes: [87],
                     callback: function() {
-                        alert('as was pressed');
+                        alert('qw was pressed');
                     },
                     children: []
                 }
@@ -86,12 +87,16 @@
             clearTimeout(cancelEndCurrentDecree);
         }
 
-        updateMatchingDecreeStates();
+        updateMatchingDecreeIndices();
         isFirstKey = false;
 
         cancelEndCurrentDecree = setTimeout(function endCurrentDecree() {
-            matchingDecreeStates = [];
+            if (isMatch) {
+                executeDecreeCallback();
+            }
+            matchingDecreeIndices = [];
             isFirstKey = true;
+            isMatch = true;
         }, timeThreshold);
 
         timeOfLastPress = currentTime;
@@ -105,15 +110,27 @@
         keyboardState[event.keyCode] = false;
     }
 
-    function updateMatchingDecreeStates() {
+    function updateMatchingDecreeIndices() {
         if (isFirstKey) {
             var matchingDecreeIndex = getMatchingTopLevelDecreeIndex();
             if (matchingDecreeIndex != -1) {
-                matchingDecreeStates.push([matchingDecreeIndex]);
+                matchingDecreeIndices.push(matchingDecreeIndex);
+            } else {
+                isMatch = false;
+            }
+        } else if (isMatch) {
+            var lastMatchingState = decreeTree[matchingDecreeIndices[0]];
+            for (var i = 1; i < matchingDecreeIndices.length; i++) {
+                lastMatchingState = lastMatchingState.children[matchingDecreeIndices[i]];
+            }
+
+            for (var i = 0; i < lastMatchingState.children.length; i++) {
+                if (doesCurrentKeyboardStateMatchDecreeState(lastMatchingState.children[i])) {
+                    matchingDecreeIndices.push(i);
+                    break;
+                }
             }
         }
-
-        console.log(matchingDecreeStates);
     }
 
     function getMatchingTopLevelDecreeIndex() {
@@ -121,19 +138,35 @@
         for (var i = 0; i < decreeTree.length; i++) {
             var decree = decreeTree[i];
 
-            var isMatchingState = true;
-            decree.keyCodes.forEach(function(keyCode) {
-                if (!keyboardState[keyCode]) {
-                    isMatchingState = false;
-                }
-            });
-
-            if (isMatchingState) {
+            if (doesCurrentKeyboardStateMatchDecreeState(decree)) {
                 matchingIndex = i;
+                break;
             }
         }
 
         return matchingIndex;
+    }
+
+    function doesCurrentKeyboardStateMatchDecreeState(decree) {
+        var isMatchingState = true;
+        decree.keyCodes.forEach(function(keyCode) {
+            if (!keyboardState[keyCode]) {
+                isMatchingState = false;
+            }
+        });
+
+        return isMatchingState;
+    }
+
+    function executeDecreeCallback() {
+        var stateToExecute = decreeTree[matchingDecreeIndices[0]];
+        for (var i = 1; i < matchingDecreeIndices.length; i++) {
+            stateToExecute = stateToExecute.children[matchingDecreeIndices[i]];
+        }
+
+        if (stateToExecute.hasOwnProperty('callback')) {
+            stateToExecute.callback.call(null);
+        }
     }
 
     //this is what a state in the decree tree looks like
