@@ -43,6 +43,8 @@
     var timeOfLastPress;
 
     var cancelEndCurrentDecree;
+    var matchingDecreeStates = [];
+    var isFirstKey = true;
 
     var decreeTree = [
         {
@@ -50,7 +52,9 @@
             children: [
                 {
                     keyCodes: [83],
-                    callback: function() { alert('as was pressed'); },
+                    callback: function() {
+                        alert('as was pressed');
+                    },
                     children: []
                 }
             ]
@@ -75,21 +79,19 @@
     window.addEventListener('keyup', markKeyAsNotPressed);
 
     function onKeyDown(event) {
-        console.log(event.keyCode + ' was pressed.');
-
         markKeyAsPressed(event.keyCode);
 
         var currentTime = (new Date()).getTime();
         if (currentTime - timeOfLastPress < timeThreshold) {
-            console.log('press was within the time threshold');
             clearTimeout(cancelEndCurrentDecree);
         }
 
-        checkCurrentDecree();
+        updateMatchingDecreeStates();
+        isFirstKey = false;
 
         cancelEndCurrentDecree = setTimeout(function endCurrentDecree() {
-            console.log('press outside of threshold, restarting key chain');
-            unmarkAllDecrees();
+            matchingDecreeStates = [];
+            isFirstKey = true;
         }, timeThreshold);
 
         timeOfLastPress = currentTime;
@@ -103,51 +105,35 @@
         keyboardState[event.keyCode] = false;
     }
 
-    function checkCurrentDecree() {
-        decreeTree.forEach(function(decree) {
-            checkCurrentDecreeHelper(decree);
-        });
-    }
-
-    function checkCurrentDecreeHelper(decree) {
-
-        //if the state is not yet marked as matching or not, mark it
-        if (!decree.hasOwnProperty('isMatching')) {
-            var isMatchingState = true;
-            for (var i = 0; i < decree.keyCodes.length; i++) {
-                if (!keyboardState[decree.keyCodes[i]]) {
-                    isMatchingState = false;
-                    break;
-                }
+    function updateMatchingDecreeStates() {
+        if (isFirstKey) {
+            var matchingDecreeIndex = getMatchingTopLevelDecreeIndex();
+            if (matchingDecreeIndex != -1) {
+                matchingDecreeStates.push([matchingDecreeIndex]);
             }
-            decree.isMatchingState = isMatchingState;
-            console.log('marking state as ' + decree.isMatchingState);
         }
 
-        //if it is matching, call the callback if present, then check its child states and do the same
-        if (decree.isMatchingState) {
-            if (decree.callback) {
-                decree.callback();
-            }
-
-            decree.children.forEach(function(childDecree) {
-                checkCurrentDecreeHelper(childDecree);
-            });
-        }
+        console.log(matchingDecreeStates);
     }
 
-    function unmarkAllDecrees() {
+    function getMatchingTopLevelDecreeIndex() {
+        var matchingIndex = -1;
         for (var i = 0; i < decreeTree.length; i++) {
-            unmarkAllDecreesHelper(decreeTree[i]);
-        }
-    }
+            var decree = decreeTree[i];
 
-    function unmarkAllDecreesHelper(decree) {
-        delete decree.isMatching;
+            var isMatchingState = true;
+            decree.keyCodes.forEach(function(keyCode) {
+                if (!keyboardState[keyCode]) {
+                    isMatchingState = false;
+                }
+            });
 
-        for (var j = 0; j < decree.children.length; j++) {
-            unmarkAllDecreesHelper(decree.children[j]);
+            if (isMatchingState) {
+                matchingIndex = i;
+            }
         }
+
+        return matchingIndex;
     }
 
     //this is what a state in the decree tree looks like
