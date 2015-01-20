@@ -86,9 +86,24 @@
         if (currentTime - timeOfLastPress < timeThreshold) {
             clearTimeout(cancelEndCurrentDecree);
         }
+        timeOfLastPress = currentTime;
 
-        updateMatchingDecreeIndices();
-        isFirstKey = false;
+        if (isFirstKey) {
+            if (isMatchingTopLevelDecreePresent()) {
+                pushTopLevelMatchingDecreeIndex();
+            } else {
+                isMatch = false;
+            }
+
+            isFirstKey = false;
+        } else if (isMatch) {
+            var lastMatchedState = getLastMatchedState();
+            if (isMatchingChildStatePresent(lastMatchedState)) {
+                pushMatchingChildStateDecreeIndex(lastMatchedState);
+            } else {
+                isMatch = false;
+            }
+        }
 
         cancelEndCurrentDecree = setTimeout(function endCurrentDecree() {
             if (isMatch) {
@@ -98,8 +113,6 @@
             isFirstKey = true;
             isMatch = true;
         }, timeThreshold);
-
-        timeOfLastPress = currentTime;
     }
 
     function markKeyAsPressed(keyCode) {
@@ -110,30 +123,7 @@
         keyboardState[event.keyCode] = false;
     }
 
-    function updateMatchingDecreeIndices() {
-        if (isFirstKey) {
-            var matchingDecreeIndex = getMatchingTopLevelDecreeIndex();
-            if (matchingDecreeIndex != -1) {
-                matchingDecreeIndices.push(matchingDecreeIndex);
-            } else {
-                isMatch = false;
-            }
-        } else if (isMatch) {
-            var lastMatchingState = decreeTree[matchingDecreeIndices[0]];
-            for (var i = 1; i < matchingDecreeIndices.length; i++) {
-                lastMatchingState = lastMatchingState.children[matchingDecreeIndices[i]];
-            }
-
-            for (var i = 0; i < lastMatchingState.children.length; i++) {
-                if (doesCurrentKeyboardStateMatchDecreeState(lastMatchingState.children[i])) {
-                    matchingDecreeIndices.push(i);
-                    break;
-                }
-            }
-        }
-    }
-
-    function getMatchingTopLevelDecreeIndex() {
+    function isMatchingTopLevelDecreePresent() {
         var matchingIndex = -1;
         for (var i = 0; i < decreeTree.length; i++) {
             var decree = decreeTree[i];
@@ -144,7 +134,51 @@
             }
         }
 
-        return matchingIndex;
+        return matchingIndex !== -1;
+    }
+
+    function pushTopLevelMatchingDecreeIndex() {
+        var matchingIndex = -1;
+        for (var i = 0; i < decreeTree.length; i++) {
+            var decree = decreeTree[i];
+
+            if (doesCurrentKeyboardStateMatchDecreeState(decree)) {
+                matchingIndex = i;
+                break;
+            }
+        }
+
+        matchingDecreeIndices.push(matchingIndex);
+    }
+
+    function getLastMatchedState() {
+        var lastMatchingState = decreeTree[matchingDecreeIndices[0]];
+        for (var i = 1; i < matchingDecreeIndices.length; i++) {
+            lastMatchingState = lastMatchingState.children[matchingDecreeIndices[i]];
+        }
+
+        return lastMatchingState;
+    }
+
+    function isMatchingChildStatePresent(decreeState) {
+        var didFindMatch = false;
+        for (var i = 0; i < decreeState.children.length; i++) {
+            if (doesCurrentKeyboardStateMatchDecreeState(decreeState.children[i])) {
+                didFindMatch = true;
+                break;
+            }
+        }
+
+        return didFindMatch;
+    }
+
+    function pushMatchingChildStateDecreeIndex(decreeState) {
+        for (var i = 0; i < decreeState.children.length; i++) {
+            if (doesCurrentKeyboardStateMatchDecreeState(decreeState.children[i])) {
+                matchingDecreeIndices.push(i);
+                break;
+            }
+        }
     }
 
     function doesCurrentKeyboardStateMatchDecreeState(decree) {
