@@ -42,85 +42,153 @@
     var timeThreshold = 500; //milliseconds
     var timeOfLastPress;
 
-    var keyChain = [];
-    var cancelEndKeyChain;
+    var cancelEndCurrentDecree;
 
-    var decrees = [];
-
-    window.addEventListener('keydown', function(event) {
-        var currentTime = (new Date()).getTime();
-
-        if (currentTime - timeOfLastPress < timeThreshold) {
-            clearTimeout(cancelEndKeyChain);
+    var decreeTree = [
+        {
+            keyCodes: [65],
+            children: [
+                {
+                    keyCodes: [83],
+                    callback: function() { alert('as was pressed'); },
+                    children: []
+                }
+            ]
+        },
+        {
+            keyCodes: [81],
+            children: [
+                {
+                    keyCodes: [87],
+                    callback: function() {
+                        alert('as was pressed');
+                    },
+                    children: []
+                }
+            ]
         }
 
-        keyChain.push(event.keyCode);
-        getKeyChainCallbacks().forEach(function(keyChainCallback) {
-            keyChainCallback();
-        });
+    ];
+    var keyboardState = [];
 
-        cancelEndKeyChain = setTimeout(function endKeyChain() {
-            keyChain = [];
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', markKeyAsNotPressed);
+
+    function onKeyDown(event) {
+        console.log(event.keyCode + ' was pressed.');
+
+        markKeyAsPressed(event.keyCode);
+
+        var currentTime = (new Date()).getTime();
+        if (currentTime - timeOfLastPress < timeThreshold) {
+            console.log('press was within the time threshold');
+            clearTimeout(cancelEndCurrentDecree);
+        }
+
+        checkCurrentDecree();
+
+        cancelEndCurrentDecree = setTimeout(function endCurrentDecree() {
+            console.log('press outside of threshold, restarting key chain');
+            unmarkAllDecrees();
         }, timeThreshold);
 
         timeOfLastPress = currentTime;
-    });
+    }
 
-    function getKeyChainCallbacks() {
-        return decrees.filter(function(decree) {
-            return decree.chain.length === keyChain.length &&
-                decree.chain.every(function(entryKeyChainKey, i) {
-                    return entryKeyChainKey == keyChain[i];
-                });
-        }).map(function(keyChainEntry) {
-            return keyChainEntry.callback;
+    function markKeyAsPressed(keyCode) {
+        keyboardState[keyCode] = true;
+    }
+
+    function markKeyAsNotPressed(event) {
+        keyboardState[event.keyCode] = false;
+    }
+
+    function checkCurrentDecree() {
+        decreeTree.forEach(function(decree) {
+            checkCurrentDecreeHelper(decree);
         });
     }
 
-    var decree = {
-        chain: []
-    };
+    function checkCurrentDecreeHelper(decree) {
+
+        //if the state is not yet marked as matching or not, mark it
+        if (!decree.hasOwnProperty('isMatching')) {
+            var isMatchingState = true;
+            for (var i = 0; i < decree.keyCodes.length; i++) {
+                if (!keyboardState[decree.keyCodes[i]]) {
+                    isMatchingState = false;
+                    break;
+                }
+            }
+            decree.isMatchingState = isMatchingState;
+            console.log('marking state as ' + decree.isMatchingState);
+        }
+
+        //if it is matching, call the callback if present, then check its child states and do the same
+        if (decree.isMatchingState) {
+            if (decree.callback) {
+                decree.callback();
+            }
+
+            decree.children.forEach(function(childDecree) {
+                checkCurrentDecreeHelper(childDecree);
+            });
+        }
+    }
+
+    function unmarkAllDecrees() {
+        for (var i = 0; i < decreeTree.length; i++) {
+            unmarkAllDecreesHelper(decreeTree[i]);
+        }
+    }
+
+    function unmarkAllDecreesHelper(decree) {
+        delete decree.isMatching;
+
+        for (var j = 0; j < decree.children.length; j++) {
+            unmarkAllDecreesHelper(decree.children[j]);
+        }
+    }
+
+    //this is what a state in the decree tree looks like
+    //keyCodes - the keys that are down for this state
+    //callback - only present if perform() was called at this state in the decree
+    //children - always there, only populated if there are children states
+    //isMatching - only there while a keystroke is being entered, true if the state is part of that keystroke, false otherwise
+//    var newDecree = {
+//        keyCodes: [],
+//        callback: function () {},
+//        children: [],
+//        isMatching: true
+//    };
     window.decree = function(key) {
-        decree.chain.push(keyCodeMap[key]);
 
         function then(key) {
-            decree.chain.push(keyCodeMap[key]);
 
             return {
                 then: then,
+                and: and,
+                perform: perform
+            };
+        }
+
+        function and(key) {
+
+            return {
+                then: then,
+                and: and,
                 perform: perform
             };
         }
 
         function perform(callback) {
-            decree.callback = callback;
-            decrees.push(decree);
-            decree = {
-                chain: []
-            };
+
         }
 
         return {
             then: then,
+            and: and,
             perform: perform
         };
     };
 })(window);
-
-//=====================================\\
-
-decree('a').perform(function() {
-    console.log('"a" was pressed');
-});
-
-decree('a').perform(function() {
-    console.log('pressed was "a"');
-});
-
-decree('a').then('s').then('d').then('f').perform(function() {
-    console.log('"asdf" was pressed');
-});
-
-decree('up').then('up').then('down').then('down').then('left').then('right').then('left').then('right').then('b').then('a').then('enter').perform(function() {
-    alert('konami code!');
-});

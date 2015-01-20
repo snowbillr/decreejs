@@ -25,7 +25,6 @@
 
     <header>
         <h1>Decree JS</h1>
-
         <h2>A fluent API for responding to keyboard input</h2>
     </header>
 
@@ -45,14 +44,21 @@ decree('a').perform(function() {
         <p>
             To make a chain of sequential key presses, use the <code>then</code> method.
             <pre>
-decree('a').then('s').then('d').then('f').perform(console.log(function() {
+decree('a').then('s').then('d').then('f').perform(function() {
     console.log('"asdf" was pressed');
 });
             </pre>
             Note that the last method called here was <code>perform</code>.
         </p>
         <p>
-            Key sequences can be overloaded!
+            Decree also supports key combinations instead of sequences, like pressing "shift" and "a" at the same time.
+            After a key is specified with <code>decree</code> or <code>then</code> use the <code>and</code> method for
+            the modifier key you want.
+            <pre>
+decree('a').and('shift').perform(function() {
+    console.log('"shift" and "a" were pressed at the same time.');
+});
+            </pre>
         </p>
     </div>
 
@@ -81,6 +87,7 @@ decree('a').then('s').then('d').then('f').perform(console.log(function() {
 
     <!-- build:js({app,.tmp}) scripts/main.js -->
     <script src="scripts/decree.js"></script>
+    <script src="scripts/main.js"></script>
     <!-- endbuild -->
 </body>
 </html>
