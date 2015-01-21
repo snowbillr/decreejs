@@ -121,12 +121,10 @@
     }
 
     function getPotentiallyMatchingStates() {
-        if (isMatchSoFar) {
-            if (matchingDecreeIndices.length) {
-                return getLastMatchedState().children;
-            } else {
-                return decreeTree;
-            }
+        if (matchingDecreeIndices.length) {
+            return getLastMatchedState().children;
+        } else {
+            return decreeTree;
         }
     }
 
