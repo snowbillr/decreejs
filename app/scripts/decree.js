@@ -44,8 +44,7 @@
     var cancelEndCurrentDecree;
 
     var matchingDecreeIndices = [];
-    var isFirstKey = true;
-    var isMatch = true;
+    var isMatchSoFar = true;
 
     var decreeTree = [
         {
@@ -88,31 +87,32 @@
         }
         timeOfLastPress = currentTime;
 
-        if (isFirstKey) {
-            if (isMatchingTopLevelDecreePresent()) {
-                pushTopLevelMatchingDecreeIndex();
+        if (isMatchSoFar) {
+            var stateListToCheckForMatches = getPotentiallyMatchingStates();
+            if (isMatchingStatePresentInList(stateListToCheckForMatches)) {
+                pushMatchingStateInList(stateListToCheckForMatches);
             } else {
-                isMatch = false;
-            }
-
-            isFirstKey = false;
-        } else if (isMatch) {
-            var lastMatchedState = getLastMatchedState();
-            if (isMatchingChildStatePresent(lastMatchedState)) {
-                pushMatchingChildStateDecreeIndex(lastMatchedState);
-            } else {
-                isMatch = false;
+                isMatchSoFar = false;
             }
         }
 
         cancelEndCurrentDecree = setTimeout(function endCurrentDecree() {
-            if (isMatch) {
+            if (isMatchSoFar) {
                 executeDecreeCallback();
             }
             matchingDecreeIndices = [];
-            isFirstKey = true;
-            isMatch = true;
+            isMatchSoFar = true;
         }, timeThreshold);
+    }
+
+    function getPotentiallyMatchingStates() {
+        if (isMatchSoFar) {
+            if (matchingDecreeIndices.length) {
+                return getLastMatchedState().children;
+            } else {
+                return decreeTree;
+            }
+        }
     }
 
     function markKeyAsPressed(keyCode) {
@@ -121,34 +121,6 @@
 
     function markKeyAsNotPressed(event) {
         keyboardState[event.keyCode] = false;
-    }
-
-    function isMatchingTopLevelDecreePresent() {
-        var matchingIndex = -1;
-        for (var i = 0; i < decreeTree.length; i++) {
-            var decree = decreeTree[i];
-
-            if (doesCurrentKeyboardStateMatchDecreeState(decree)) {
-                matchingIndex = i;
-                break;
-            }
-        }
-
-        return matchingIndex !== -1;
-    }
-
-    function pushTopLevelMatchingDecreeIndex() {
-        var matchingIndex = -1;
-        for (var i = 0; i < decreeTree.length; i++) {
-            var decree = decreeTree[i];
-
-            if (doesCurrentKeyboardStateMatchDecreeState(decree)) {
-                matchingIndex = i;
-                break;
-            }
-        }
-
-        matchingDecreeIndices.push(matchingIndex);
     }
 
     function getLastMatchedState() {
@@ -160,10 +132,10 @@
         return lastMatchingState;
     }
 
-    function isMatchingChildStatePresent(decreeState) {
+    function isMatchingStatePresentInList(stateList) {
         var didFindMatch = false;
-        for (var i = 0; i < decreeState.children.length; i++) {
-            if (doesCurrentKeyboardStateMatchDecreeState(decreeState.children[i])) {
+        for (var i = 0; i < stateList.length; i++) {
+            if (doesCurrentKeyboardStateMatchDecreeState(stateList[i])) {
                 didFindMatch = true;
                 break;
             }
@@ -172,11 +144,11 @@
         return didFindMatch;
     }
 
-    function pushMatchingChildStateDecreeIndex(decreeState) {
-        for (var i = 0; i < decreeState.children.length; i++) {
-            if (doesCurrentKeyboardStateMatchDecreeState(decreeState.children[i])) {
+    function pushMatchingStateInList(stateList) {
+        for (var i = 0; i < stateList.length; i++) {
+            if (doesCurrentKeyboardStateMatchDecreeState(stateList[i])) {
                 matchingDecreeIndices.push(i);
-                break;
+                return;
             }
         }
     }
@@ -203,17 +175,6 @@
         }
     }
 
-    //this is what a state in the decree tree looks like
-    //keyCodes - the keys that are down for this state
-    //callback - only present if perform() was called at this state in the decree
-    //children - always there, only populated if there are children states
-    //isMatching - only there while a keystroke is being entered, true if the state is part of that keystroke, false otherwise
-//    var newDecree = {
-//        keyCodes: [],
-//        callback: function () {},
-//        children: [],
-//        isMatching: true
-//    };
     window.decree = function(key) {
 
         function then(key) {
