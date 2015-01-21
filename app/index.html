@@ -51,6 +51,18 @@ decree('a').then('s').then('d').then('f').perform(function() {
             Note that the last method called here was <code>perform</code>.
         </p>
         <p>
+            Decree will execute the first perform method it finds along a key sequence. So if you execute the
+            following code snippets, only the shorter decree will ever be executed.
+            <pre>
+decree('w').then('o').perform(function() {
+    console.log('I will be called!');
+});
+decree('w').then('o').then('o').perform(function() {
+    console.log('I will never be called because the "wo" key sequence is shorter than "woo"');
+}
+            </pre>
+        </p>
+        <p>
             Decree also supports key combinations instead of sequences, like pressing "shift" and "a" at the same time.
             After a key is specified with <code>decree</code> or <code>then</code> use the <code>and</code> method for
             the modifier key you want.
