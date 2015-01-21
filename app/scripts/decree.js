@@ -153,6 +153,7 @@
         elseFn.call(this);
     }
 
+    //
     function doesCurrentKeyboardStateMatchDecreeState(decree) {
         var isMatchingState = true;
         decree.keyCodes.forEach(function(keyCode) {
@@ -172,9 +173,72 @@
         }
     }
 
+    var newDecreeStateKeyCodes = [];
+    var newDecreeStateIndices = [];
     window.decree = function(key) {
+        newDecreeStateKeyCodes = [];
+        newDecreeStateIndices = [];
+        //add key to new decree keycodes
+        var keyCode = keyCodeMap[key];
+        newDecreeStateKeyCodes.push(keyCode);
+
+        //check if the created state is equal to any existing top level states
+        for (var i = 0; i < decreeTree.length; i++) {
+            if (decreeTree[i].keyCodes.every(function(keyCode) {
+                return newDecreeStateKeyCodes.indexOf(keyCode) !== -1;
+            })) {
+                //if it is, record it
+                newDecreeStateIndices.push(i);
+                break;
+            }
+        }
+        //if its not, make a new state
+        if (newDecreeStateIndices.length === 0) {
+            decreeTree.push({
+                keyCodes: newDecreeStateKeyCodes,
+                children: []
+            });
+            //and record it
+            newDecreeStateIndices.push(decreeTree.length - 1);
+        }
+
+        function getStateAtIndexPath(indexPath) {
+            var state = decreeTree[indexPath[0]];
+            for (var i = 1; i < indexPath.length; i++) {
+                state = state.children[indexPath[i]];
+            }
+            return state;
+        }
 
         function then(key) {
+            //reset state key codes
+            newDecreeStateKeyCodes = [];
+
+            //add key code to current state
+            var keyCode = keyCodeMap[key];
+            newDecreeStateKeyCodes.push(keyCode);
+
+            var parentState = getStateAtIndexPath(newDecreeStateIndices);
+
+            //if a child of the parent state has the same key code, record it
+            var foundMatch = false;
+            for (var i = 0; i < parentState.children.length; i++) {
+                if (parentState.children[i].keyCodes.every(function(keyCode) {
+                    return newDecreeStateKeyCodes.indexOf(keyCode) !== -1;
+                })) {
+                    newDecreeStateIndices.push(i);
+                    foundMatch = true;
+                    break;
+                }
+            }
+            //otherwise make a new one
+            if (!foundMatch) {
+                parentState.children.push({
+                    keyCodes: newDecreeStateKeyCodes,
+                    children: []
+                });
+                newDecreeStateIndices.push(parentState.children.length - 1);
+            }
 
             return {
                 then: then,
@@ -193,7 +257,7 @@
         }
 
         function perform(callback) {
-
+            getStateAtIndexPath(newDecreeStateIndices).callback = callback;
         }
 
         return {
