@@ -96,7 +96,8 @@
             var lastPushedState = getLastMatchedState();
             if (lastPushedState && lastPushedState.hasOwnProperty('callback')) {
                 executeDecreeCallback();
-                isMatchSoFar = false;
+                matchingDecreeIndices = [];
+                isMatchSoFar = true;
             }
         }
 
