@@ -92,12 +92,15 @@
             pushMatchingStateInListIfPresentOrElse(stateListToCheckForMatches, function() {
                 isMatchSoFar = false;
             });
+
+            var lastPushedState = getLastMatchedState();
+            if (lastPushedState && lastPushedState.hasOwnProperty('callback')) {
+                executeDecreeCallback();
+                isMatchSoFar = false;
+            }
         }
 
         cancelEndCurrentDecree = setTimeout(function endCurrentDecree() {
-            if (isMatchSoFar) {
-                executeDecreeCallback();
-            }
             matchingDecreeIndices = [];
             isMatchSoFar = true;
         }, timeThreshold);
