@@ -111,6 +111,14 @@
         keyboardState[event.keyCode] = false;
     }
 
+    function getPotentiallyMatchingStates() {
+        if (matchingDecreeIndices.length) {
+            return getLastMatchedState().children;
+        } else {
+            return decreeTree;
+        }
+    }
+
     function getLastMatchedState() {
         var lastMatchingState = decreeTree[matchingDecreeIndices[0]];
         for (var i = 1; i < matchingDecreeIndices.length; i++) {
@@ -118,14 +126,6 @@
         }
 
         return lastMatchingState;
-    }
-
-    function getPotentiallyMatchingStates() {
-        if (matchingDecreeIndices.length) {
-            return getLastMatchedState().children;
-        } else {
-            return decreeTree;
-        }
     }
 
     function pushMatchingStateInListIfPresentOrElse(stateList, elseFn) {
