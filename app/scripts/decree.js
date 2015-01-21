@@ -56,6 +56,13 @@
                         console.log('as was pressed');
                     },
                     children: []
+                },
+                {
+                    keyCodes: [68],
+                    callback: function() {
+                        console.log('ad was pressed');
+                    },
+                    children: []
                 }
             ]
         },
