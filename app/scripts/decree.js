@@ -89,11 +89,9 @@
 
         if (isMatchSoFar) {
             var stateListToCheckForMatches = getPotentiallyMatchingStates();
-            if (isMatchingStatePresentInList(stateListToCheckForMatches)) {
-                pushMatchingStateInList(stateListToCheckForMatches);
-            } else {
+            pushMatchingStateInListIfPresentOrElse(stateListToCheckForMatches, function() {
                 isMatchSoFar = false;
-            }
+            });
         }
 
         cancelEndCurrentDecree = setTimeout(function endCurrentDecree() {
@@ -103,16 +101,6 @@
             matchingDecreeIndices = [];
             isMatchSoFar = true;
         }, timeThreshold);
-    }
-
-    function getPotentiallyMatchingStates() {
-        if (isMatchSoFar) {
-            if (matchingDecreeIndices.length) {
-                return getLastMatchedState().children;
-            } else {
-                return decreeTree;
-            }
-        }
     }
 
     function markKeyAsPressed(keyCode) {
@@ -132,25 +120,25 @@
         return lastMatchingState;
     }
 
-    function isMatchingStatePresentInList(stateList) {
-        var didFindMatch = false;
-        for (var i = 0; i < stateList.length; i++) {
-            if (doesCurrentKeyboardStateMatchDecreeState(stateList[i])) {
-                didFindMatch = true;
-                break;
+    function getPotentiallyMatchingStates() {
+        if (isMatchSoFar) {
+            if (matchingDecreeIndices.length) {
+                return getLastMatchedState().children;
+            } else {
+                return decreeTree;
             }
         }
-
-        return didFindMatch;
     }
 
-    function pushMatchingStateInList(stateList) {
+    function pushMatchingStateInListIfPresentOrElse(stateList, elseFn) {
         for (var i = 0; i < stateList.length; i++) {
             if (doesCurrentKeyboardStateMatchDecreeState(stateList[i])) {
                 matchingDecreeIndices.push(i);
                 return;
             }
         }
+
+        elseFn.call(this);
     }
 
     function doesCurrentKeyboardStateMatchDecreeState(decree) {
