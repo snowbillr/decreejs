@@ -151,10 +151,7 @@
     }
 
     function executeDecreeCallback() {
-        var stateToExecute = decreeTree[matchingDecreeIndices[0]];
-        for (var i = 1; i < matchingDecreeIndices.length; i++) {
-            stateToExecute = stateToExecute.children[matchingDecreeIndices[i]];
-        }
+        var stateToExecute = getLastMatchedState();
 
         if (stateToExecute.hasOwnProperty('callback')) {
             stateToExecute.callback.call(null);
