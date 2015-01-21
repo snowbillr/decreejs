@@ -53,7 +53,7 @@
                 {
                     keyCodes: [83],
                     callback: function() {
-                        alert('as was pressed');
+                        console.log('as was pressed');
                     },
                     children: []
                 }
@@ -65,7 +65,7 @@
                 {
                     keyCodes: [87],
                     callback: function() {
-                        alert('qw was pressed');
+                        console.log('qw was pressed');
                     },
                     children: []
                 }
@@ -96,15 +96,22 @@
             var lastPushedState = getLastMatchedState();
             if (lastPushedState && lastPushedState.hasOwnProperty('callback')) {
                 executeDecreeCallback();
-                matchingDecreeIndices = [];
-                isMatchSoFar = true;
+//                matchingDecreeIndices = [];
+//                isMatchSoFar = true;
+                listenForNextDecree();
             }
         }
 
         cancelEndCurrentDecree = setTimeout(function endCurrentDecree() {
-            matchingDecreeIndices = [];
-            isMatchSoFar = true;
+//            matchingDecreeIndices = [];
+//            isMatchSoFar = true;
+            listenForNextDecree();
         }, timeThreshold);
+    }
+
+    function listenForNextDecree() {
+        matchingDecreeIndices = [];
+        isMatchSoFar = true;
     }
 
     function markKeyAsPressed(keyCode) {
