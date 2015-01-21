@@ -48,17 +48,17 @@
 
     var decreeTree = [
         {
-            keyCodes: [65],
+            keyCodes: [65], //a
             children: [
                 {
-                    keyCodes: [83],
+                    keyCodes: [83], //s
                     callback: function() {
                         console.log('as was pressed');
                     },
                     children: []
                 },
                 {
-                    keyCodes: [68],
+                    keyCodes: [68], //d
                     callback: function() {
                         console.log('ad was pressed');
                     },
@@ -67,10 +67,10 @@
             ]
         },
         {
-            keyCodes: [81],
+            keyCodes: [81], //q
             children: [
                 {
-                    keyCodes: [87],
+                    keyCodes: [87], //w
                     callback: function() {
                         console.log('qw was pressed');
                     },
@@ -88,11 +88,7 @@
     function onKeyDown(event) {
         markKeyAsPressed(event.keyCode);
 
-        var currentTime = (new Date()).getTime();
-        if (currentTime - timeOfLastPress < timeThreshold) {
-            clearTimeout(cancelEndCurrentDecree);
-        }
-        timeOfLastPress = currentTime;
+        allowKeySequenceToEndIfNoKeyPressWithinTimeThreshold();
 
         if (isMatchSoFar) {
             var stateListToCheckForMatches = getPotentiallyMatchingStates();
@@ -100,7 +96,7 @@
                 isMatchSoFar = false;
             });
 
-            var lastPushedState = getLastMatchedState();
+            var lastPushedState = getLastPushedState();
             if (lastPushedState && lastPushedState.hasOwnProperty('callback')) {
                 executeDecreeCallback();
                 listenForNextDecree();
@@ -112,9 +108,12 @@
         }, timeThreshold);
     }
 
-    function listenForNextDecree() {
-        matchingDecreeIndices = [];
-        isMatchSoFar = true;
+    function allowKeySequenceToEndIfNoKeyPressWithinTimeThreshold() {
+        var currentTime = (new Date()).getTime();
+        if (currentTime - timeOfLastPress < timeThreshold) {
+            clearTimeout(cancelEndCurrentDecree);
+        }
+        timeOfLastPress = currentTime;
     }
 
     function markKeyAsPressed(keyCode) {
@@ -127,13 +126,13 @@
 
     function getPotentiallyMatchingStates() {
         if (matchingDecreeIndices.length) {
-            return getLastMatchedState().children;
+            return getLastPushedState().children;
         } else {
             return decreeTree;
         }
     }
 
-    function getLastMatchedState() {
+    function getLastPushedState() {
         var lastMatchingState = decreeTree[matchingDecreeIndices[0]];
         for (var i = 1; i < matchingDecreeIndices.length; i++) {
             lastMatchingState = lastMatchingState.children[matchingDecreeIndices[i]];
@@ -153,7 +152,6 @@
         elseFn.call(this);
     }
 
-    //
     function doesCurrentKeyboardStateMatchDecreeState(decree) {
         var isMatchingState = true;
         decree.keyCodes.forEach(function(keyCode) {
@@ -166,11 +164,16 @@
     }
 
     function executeDecreeCallback() {
-        var stateToExecute = getLastMatchedState();
+        var stateToExecute = getLastPushedState();
 
         if (stateToExecute.hasOwnProperty('callback')) {
             stateToExecute.callback.call(null);
         }
+    }
+
+    function listenForNextDecree() {
+        matchingDecreeIndices = [];
+        isMatchSoFar = true;
     }
 
     var newDecreeStateKeyCodes = [];

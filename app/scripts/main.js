@@ -1,7 +1,3 @@
-//decree('a').perform(function() {
-//    console.log('"a" was pressed');
-//});
-//
 //decree('a').then('s').then('d').then('f').perform(function() {
 //    console.log('"asdf" was pressed');
 //});
