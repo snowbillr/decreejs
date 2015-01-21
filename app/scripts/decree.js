@@ -96,15 +96,11 @@
             var lastPushedState = getLastMatchedState();
             if (lastPushedState && lastPushedState.hasOwnProperty('callback')) {
                 executeDecreeCallback();
-//                matchingDecreeIndices = [];
-//                isMatchSoFar = true;
                 listenForNextDecree();
             }
         }
 
         cancelEndCurrentDecree = setTimeout(function endCurrentDecree() {
-//            matchingDecreeIndices = [];
-//            isMatchSoFar = true;
             listenForNextDecree();
         }, timeThreshold);
     }
