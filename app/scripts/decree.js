@@ -75,20 +75,20 @@
         }, timeThreshold);
     }
 
-    function allowKeySequenceToEndIfNoKeyPressWithinTimeThreshold() {
-        var currentTime = (new Date()).getTime();
-        if (currentTime - timeOfLastPress < timeThreshold) {
-            clearTimeout(cancelEndCurrentDecree);
-        }
-        timeOfLastPress = currentTime;
-    }
-
     function markKeyAsPressed(keyCode) {
         keyboardState[keyCode] = true;
     }
 
     function markKeyAsNotPressed(event) {
         keyboardState[event.keyCode] = false;
+    }
+
+    function allowKeySequenceToEndIfNoKeyPressWithinTimeThreshold() {
+        var currentTime = (new Date()).getTime();
+        if (currentTime - timeOfLastPress < timeThreshold) {
+            clearTimeout(cancelEndCurrentDecree);
+        }
+        timeOfLastPress = currentTime;
     }
 
     function getPotentiallyMatchingStates() {
