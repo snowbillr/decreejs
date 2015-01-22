@@ -155,6 +155,40 @@
             addNewStateToStateListAndRecordIndex(decreeTree);
         });
 
+        function then(key) {
+            //reset state key codes
+            newDecreeStateKeyCodes = [];
+
+            //add key code to current state
+            var keyCode = keyCodeMap[key];
+            newDecreeStateKeyCodes.push(keyCode);
+
+            var parentState = getStateAtIndexPath(newDecreeStateIndices);
+
+            recordMatchingStateIndexIfPresentOrElse(parentState.children, function() {
+                addNewStateToStateListAndRecordIndex(parentState.children);
+            });
+
+            return {
+                then: then,
+                and: and,
+                perform: perform
+            };
+        }
+
+        function and(key) {
+
+            return {
+                then: then,
+                and: and,
+                perform: perform
+            };
+        }
+
+        function perform(callback) {
+            getStateAtIndexPath(newDecreeStateIndices).callback = callback;
+        }
+
         function doesStateMatchNewDecree(state) {
             return state.keyCodes.every(function(keyCode) {
                 return newDecreeStateKeyCodes.indexOf(keyCode) !== -1;
@@ -186,46 +220,12 @@
             newDecreeStateIndices.push(stateList.length - 1);
         }
 
-        function then(key) {
-            //reset state key codes
-            newDecreeStateKeyCodes = [];
-
-            //add key code to current state
-            var keyCode = keyCodeMap[key];
-            newDecreeStateKeyCodes.push(keyCode);
-
-            var parentState = getStateAtIndexPath(newDecreeStateIndices);
-
-            recordMatchingStateIndexIfPresentOrElse(parentState.children, function() {
-                addNewStateToStateListAndRecordIndex(parentState.children);
-            });
-
-            return {
-                then: then,
-                and: and,
-                perform: perform
-            };
-        }
-
         function getStateAtIndexPath(indexPath) {
             var state = decreeTree[indexPath[0]];
             for (var i = 1; i < indexPath.length; i++) {
                 state = state.children[indexPath[i]];
             }
             return state;
-        }
-
-        function and(key) {
-
-            return {
-                then: then,
-                and: and,
-                perform: perform
-            };
-        }
-
-        function perform(callback) {
-            getStateAtIndexPath(newDecreeStateIndices).callback = callback;
         }
 
         return {
