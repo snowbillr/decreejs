@@ -176,11 +176,10 @@
         isMatchSoFar = true;
     }
 
-    var newDecreeStateKeyCodes = [];
-    var newDecreeStateIndices = [];
     window.decree = function(key) {
-        newDecreeStateKeyCodes = [];
-        newDecreeStateIndices = [];
+        var newDecreeStateKeyCodes = [];
+        var newDecreeStateIndices = [];
+
         //add key to new decree keycodes
         var keyCode = keyCodeMap[key];
         newDecreeStateKeyCodes.push(keyCode);
