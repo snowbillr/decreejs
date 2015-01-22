@@ -151,8 +151,8 @@
         var keyCode = keyCodeMap[key];
         newDecreeStateKeyCodes.push(keyCode);
 
-        pushMatchingStateIndexAndRecordIfPresentOrElse(decreeTree, function() {
-            addNewStateToStateListAndRecord(decreeTree);
+        recordMatchingStateIndexIfPresentOrElse(decreeTree, function() {
+            addNewStateToStateListAndRecordIndex(decreeTree);
         });
 
         function doesStateMatchNewDecree(state) {
@@ -161,7 +161,7 @@
             });
         }
 
-        function pushMatchingStateIndexAndRecordIfPresentOrElse(stateList, elseFn) {
+        function recordMatchingStateIndexIfPresentOrElse(stateList, elseFn) {
             var foundMatch = false;
             //check if the created state is equal to any existing top level states
             for (var i = 0; i < stateList.length; i++) {
@@ -178,7 +178,7 @@
             }
         }
 
-        function addNewStateToStateListAndRecord(stateList) {
+        function addNewStateToStateListAndRecordIndex(stateList) {
             stateList.push({
                 keyCodes: newDecreeStateKeyCodes,
                 children: []
@@ -196,8 +196,8 @@
 
             var parentState = getStateAtIndexPath(newDecreeStateIndices);
 
-            pushMatchingStateIndexAndRecordIfPresentOrElse(parentState.children, function() {
-                addNewStateToStateListAndRecord(parentState.children);
+            recordMatchingStateIndexIfPresentOrElse(parentState.children, function() {
+                addNewStateToStateListAndRecordIndex(parentState.children);
             });
 
             return {
