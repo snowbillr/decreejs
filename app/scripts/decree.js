@@ -151,30 +151,39 @@
         var keyCode = keyCodeMap[key];
         newDecreeStateKeyCodes.push(keyCode);
 
-        var foundMatch = false;
-        //check if the created state is equal to any existing top level states
-        for (var i = 0; i < decreeTree.length; i++) {
-            if (doesStateMatchNewDecree(decreeTree[i])) {
-                //if it is, record it
-                newDecreeStateIndices.push(i);
-                foundMatch = true;
-                break;
-            }
-        }
-        //if its not, make a new state
-        if (!foundMatch) {
-            decreeTree.push({
-                keyCodes: newDecreeStateKeyCodes,
-                children: []
-            });
-            //and record it
-            newDecreeStateIndices.push(decreeTree.length - 1);
-        }
+        pushMatchingStateIndexAndRecordIfPresentOrElse(decreeTree, function() {
+            addNewStateToStateListAndRecord(decreeTree);
+        });
 
         function doesStateMatchNewDecree(state) {
             return state.keyCodes.every(function(keyCode) {
                 return newDecreeStateKeyCodes.indexOf(keyCode) !== -1;
             });
+        }
+
+        function pushMatchingStateIndexAndRecordIfPresentOrElse(stateList, elseFn) {
+            var foundMatch = false;
+            //check if the created state is equal to any existing top level states
+            for (var i = 0; i < stateList.length; i++) {
+                if (doesStateMatchNewDecree(stateList[i])) {
+                    //if it is, record it
+                    newDecreeStateIndices.push(i);
+                    foundMatch = true;
+                    break;
+                }
+            }
+
+            if (!foundMatch) {
+                elseFn.call(this);
+            }
+        }
+
+        function addNewStateToStateListAndRecord(stateList) {
+            stateList.push({
+                keyCodes: newDecreeStateKeyCodes,
+                children: []
+            });
+            newDecreeStateIndices.push(stateList.length - 1);
         }
 
         function then(key) {
@@ -187,23 +196,9 @@
 
             var parentState = getStateAtIndexPath(newDecreeStateIndices);
 
-            var foundMatch = false;
-            //if a child of the parent state has the same key code, record it
-            for (var i = 0; i < parentState.children.length; i++) {
-                if (doesStateMatchNewDecree(parentState.children[i])) {
-                    newDecreeStateIndices.push(i);
-                    foundMatch = true;
-                    break;
-                }
-            }
-            //otherwise make a new one
-            if (!foundMatch) {
-                parentState.children.push({
-                    keyCodes: newDecreeStateKeyCodes,
-                    children: []
-                });
-                newDecreeStateIndices.push(parentState.children.length - 1);
-            }
+            pushMatchingStateIndexAndRecordIfPresentOrElse(parentState.children, function() {
+                addNewStateToStateListAndRecord(parentState.children);
+            });
 
             return {
                 then: then,
