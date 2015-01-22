@@ -184,18 +184,18 @@
         var keyCode = keyCodeMap[key];
         newDecreeStateKeyCodes.push(keyCode);
 
+        var foundMatch = false;
         //check if the created state is equal to any existing top level states
         for (var i = 0; i < decreeTree.length; i++) {
-            if (decreeTree[i].keyCodes.every(function(keyCode) {
-                return newDecreeStateKeyCodes.indexOf(keyCode) !== -1;
-            })) {
+            if (doesStateMatchNewDecree(decreeTree[i])) {
                 //if it is, record it
                 newDecreeStateIndices.push(i);
+                foundMatch = true;
                 break;
             }
         }
         //if its not, make a new state
-        if (newDecreeStateIndices.length === 0) {
+        if (!foundMatch) {
             decreeTree.push({
                 keyCodes: newDecreeStateKeyCodes,
                 children: []
@@ -204,12 +204,10 @@
             newDecreeStateIndices.push(decreeTree.length - 1);
         }
 
-        function getStateAtIndexPath(indexPath) {
-            var state = decreeTree[indexPath[0]];
-            for (var i = 1; i < indexPath.length; i++) {
-                state = state.children[indexPath[i]];
-            }
-            return state;
+        function doesStateMatchNewDecree(state) {
+            return state.keyCodes.every(function(keyCode) {
+                return newDecreeStateKeyCodes.indexOf(keyCode) !== -1;
+            });
         }
 
         function then(key) {
@@ -222,12 +220,10 @@
 
             var parentState = getStateAtIndexPath(newDecreeStateIndices);
 
-            //if a child of the parent state has the same key code, record it
             var foundMatch = false;
+            //if a child of the parent state has the same key code, record it
             for (var i = 0; i < parentState.children.length; i++) {
-                if (parentState.children[i].keyCodes.every(function(keyCode) {
-                    return newDecreeStateKeyCodes.indexOf(keyCode) !== -1;
-                })) {
+                if (doesStateMatchNewDecree(parentState.children[i])) {
                     newDecreeStateIndices.push(i);
                     foundMatch = true;
                     break;
@@ -247,6 +243,14 @@
                 and: and,
                 perform: perform
             };
+        }
+
+        function getStateAtIndexPath(indexPath) {
+            var state = decreeTree[indexPath[0]];
+            for (var i = 1; i < indexPath.length; i++) {
+                state = state.children[indexPath[i]];
+            }
+            return state;
         }
 
         function and(key) {
