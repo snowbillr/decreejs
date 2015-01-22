@@ -46,40 +46,7 @@
     var matchingDecreeIndices = [];
     var isMatchSoFar = true;
 
-    var decreeTree = [
-        {
-            keyCodes: [65], //a
-            children: [
-                {
-                    keyCodes: [83], //s
-                    callback: function() {
-                        console.log('as was pressed');
-                    },
-                    children: []
-                },
-                {
-                    keyCodes: [68], //d
-                    callback: function() {
-                        console.log('ad was pressed');
-                    },
-                    children: []
-                }
-            ]
-        },
-        {
-            keyCodes: [81], //q
-            children: [
-                {
-                    keyCodes: [87], //w
-                    callback: function() {
-                        console.log('qw was pressed');
-                    },
-                    children: []
-                }
-            ]
-        }
-
-    ];
+    var decreeTree = [];
     var keyboardState = [];
 
     window.addEventListener('keydown', onKeyDown);
