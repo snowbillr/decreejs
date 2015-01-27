@@ -32,19 +32,22 @@
         <p>
             Here's how you would respond to a single keypress.
             <pre>
-decree('a').perform(function() {
+when('a').decree(function() {
     console.log('"a" was pressed');
 });
             </pre>
         Go ahead and try it out by opening up your console and typing 'a' while the page is in focus. The
-        <code>decree</code> method takes in a single argument, the key you are asking decree to listen for. The <code>perform</code>
-        method takes in a function as a callback to be invoked once the key sequence happens. <code>perform</code> is
+        <code>when</code> method takes in a single argument, the key you are asking decree to listen for. The <code>
+      decree</code>
+        method takes in a function as a callback to be invoked once the key sequence happens. <code>when</code> is
+        always the first method called and <code>decree
+    </code> is
         always the last method called on a decree.
         </p>
         <p>
             To make a chain of sequential key presses, use the <code>then</code> method.
             <pre>
-decree('q').then('w').then('e').then('r').then('t').then('y').perform(function() {
+when('q').then('w').then('e').then('r').then('t').then('y').decree(function() {
     console.log('"qwerty" was pressed');
 });
             </pre>
@@ -54,20 +57,20 @@ decree('q').then('w').then('e').then('r').then('t').then('y').perform(function()
             Decree will execute the first perform method it finds along a key sequence. So if you execute the
             following code snippets, only the shorter decree will ever be executed.
             <pre>
-decree('w').then('o').perform(function() {
+when('w').then('o').decree(function() {
     console.log('I will be called!');
 });
-decree('w').then('o').then('o').perform(function() {
+when('w').then('o').then('o').decree(function() {
     console.log('I will never be called because the "wo" key sequence is shorter than "woo"');
 }
             </pre>
         </p>
         <p>
             Decree also supports key combinations instead of sequences, like pressing "shift" and "a" at the same time.
-            After a key is specified with <code>decree</code> or <code>then</code> use the <code>and</code> method for
+            After a key is specified with <code>when</code> or <code>then</code> use the <code>and</code> method for
             the modifier key you want.
             <pre>
-decree('a').and('shift').perform(function() {
+when('a').and('shift').decree(function() {
     console.log('"shift" and "a" were pressed at the same time.');
 });
             </pre>

@@ -1,19 +1,19 @@
-decree('a').perform(function() {
+when('a').decree(function() {
     console.log('"a" was pressed');
 });
 
-decree('q').then('w').then('e').then('r').then('t').then('y').perform(function() {
+when('q').then('w').then('e').then('r').then('t').then('y').decree(function() {
     console.log('"qwerty" was pressed');
 });
 
-decree('w').then('o').perform(function() {
+when('w').then('o').decree(function() {
     console.log('I will be called because the "wo" key sequence is shorter than "woo".');
 });
 
-decree('w').then('o').then('o').perform(function() {
+when('w').then('o').then('o').decree(function() {
     console.log('I will never be called because the "wo" key sequence is shorter than "woo".');
 });
 
-decree('up').then('up').then('down').then('down').then('left').then('right').then('left').then('right').then('b').then('a').then('enter').perform(function() {
+when('up').then('up').then('down').then('down').then('left').then('right').then('left').then('right').then('b').then('a').then('enter').decree(function() {
     alert('konami code!');
 });

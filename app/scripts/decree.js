@@ -143,7 +143,7 @@
         isMatchSoFar = true;
     }
 
-    window.decree = function(key) {
+    window.when = function(key) {
         var newDecreeStateKeyCodes = [];
         var newDecreeStateIndices = [];
 
@@ -172,20 +172,24 @@
             return {
                 then: then,
                 and: and,
-                perform: perform
+              decree: decree
             };
         }
 
         function and(key) {
+            var keyCode = keyCodeMap[key];
+            newDecreeStateKeyCodes.push(keyCode);
+
+            getStateAtIndexPath(newDecreeStateIndices).keyCodes.push(keyCode);
 
             return {
                 then: then,
                 and: and,
-                perform: perform
+              decree: decree
             };
         }
 
-        function perform(callback) {
+        function decree(callback) {
             getStateAtIndexPath(newDecreeStateIndices).callback = callback;
         }
 
@@ -231,7 +235,7 @@
         return {
             then: then,
             and: and,
-            perform: perform
+          decree: decree
         };
     };
 })(window);
