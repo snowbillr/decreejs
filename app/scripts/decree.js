@@ -43,11 +43,12 @@
     var timeOfLastPress;
     var cancelEndCurrentDecree;
 
-    var matchingDecreeIndices = [];
+    var matchingDecreeIndexPath = [];
     var isMatchSoFar = true;
 
-    var decreeTree = [];
     var keyboardState = [];
+
+    var decreeTree = [];
 
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', markKeyAsNotPressed);
@@ -58,21 +59,22 @@
         allowKeySequenceToEndIfNoKeyPressWithinTimeThreshold();
 
         if (isMatchSoFar) {
-            var stateListToCheckForMatches = getPotentiallyMatchingStates();
-            pushMatchingStateInListIfPresentOrElse(stateListToCheckForMatches, function() {
+            var matchingStateIndex = getMatchingStateIndex();
+            if (matchingStateIndex == null) {
                 isMatchSoFar = false;
-            });
+            } else {
+                matchingDecreeIndexPath.push(matchingStateIndex);
+            }
 
-            var lastPushedState = getLastPushedState();
-            if (lastPushedState && lastPushedState.hasOwnProperty('callback')) {
+
+            var lastMatchingState = getLastMatchingState();
+            if (lastMatchingState && lastMatchingState.hasOwnProperty('callback')) {
                 executeDecreeCallback();
                 listenForNextDecree();
             }
         }
 
-        cancelEndCurrentDecree = setTimeout(function endCurrentDecree() {
-            listenForNextDecree();
-        }, timeThreshold);
+        cancelEndCurrentDecree = setTimeout(listenForNextDecree, timeThreshold);
     }
 
     function markKeyAsPressed(keyCode) {
@@ -92,31 +94,34 @@
     }
 
     function getPotentiallyMatchingStates() {
-        if (matchingDecreeIndices.length) {
-            return getLastPushedState().children;
+        if (matchingDecreeIndexPath.length > 0) {
+            return getLastMatchingState().children;
         } else {
             return decreeTree;
         }
     }
 
-    function getLastPushedState() {
-        var lastMatchingState = decreeTree[matchingDecreeIndices[0]];
-        for (var i = 1; i < matchingDecreeIndices.length; i++) {
-            lastMatchingState = lastMatchingState.children[matchingDecreeIndices[i]];
-        }
-
-        return lastMatchingState;
+    function getLastMatchingState() {
+        return getStateAtIndexPath(matchingDecreeIndexPath);
     }
 
-    function pushMatchingStateInListIfPresentOrElse(stateList, elseFn) {
+    function getStateAtIndexPath(indexPath) {
+        var state = decreeTree[indexPath[0]];
+        for (var i = 1; i < indexPath.length; i++) {
+            state = state.children[indexPath[i]];
+        }
+        return state;
+    }
+
+    function getMatchingStateIndex() {
+        var stateList = getPotentiallyMatchingStates();
         for (var i = 0; i < stateList.length; i++) {
             if (doesCurrentKeyboardStateMatchDecreeState(stateList[i])) {
-                matchingDecreeIndices.push(i);
-                return;
+                return i;
             }
         }
 
-        elseFn.call(this);
+        return null;
     }
 
     function doesCurrentKeyboardStateMatchDecreeState(decree) {
@@ -131,7 +136,7 @@
     }
 
     function executeDecreeCallback() {
-        var stateToExecute = getLastPushedState();
+        var stateToExecute = getLastMatchingState();
 
         if (stateToExecute.hasOwnProperty('callback')) {
             stateToExecute.callback.call(null);
@@ -139,7 +144,7 @@
     }
 
     function listenForNextDecree() {
-        matchingDecreeIndices = [];
+        matchingDecreeIndexPath = [];
         isMatchSoFar = true;
     }
 
@@ -172,7 +177,7 @@
             return {
                 then: then,
                 and: and,
-              decree: decree
+                decree: decree
             };
         }
 
@@ -185,7 +190,7 @@
             return {
                 then: then,
                 and: and,
-              decree: decree
+                decree: decree
             };
         }
 
@@ -224,18 +229,10 @@
             newDecreeStateIndices.push(stateList.length - 1);
         }
 
-        function getStateAtIndexPath(indexPath) {
-            var state = decreeTree[indexPath[0]];
-            for (var i = 1; i < indexPath.length; i++) {
-                state = state.children[indexPath[i]];
-            }
-            return state;
-        }
-
         return {
             then: then,
             and: and,
-          decree: decree
+            decree: decree
         };
     };
 })(window);
