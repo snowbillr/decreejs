@@ -2,6 +2,14 @@ when('a').decree(function() {
     console.log('"a" was pressed');
 });
 
+when('m').then('i').then('n').then('t').decree(function() {
+    console.log('"mint" was pressed');
+});
+
+when('m').then('i').then('n').then('e').decree(function() {
+    console.log('"mine" was pressed');
+});
+
 when('q').then('w').then('e').then('r').then('t').then('y').decree(function() {
     console.log('"qwerty" was pressed');
 });
