@@ -1,0 +1,26 @@
+when registering decrees
+    `when` starts a new state being built, then the next method actually puts it on the tree. this way we don't add a
+     state to the tree in the wrong place
+    `then` also starts a new state, and the next method actually puts it on the tree
+    so the `then`, and `decree` are methods that add the state being created to the tree
+
+    ex. registering when('f').then('g').and('h') on a tree that already has when('f').then('g').then('h')
+        currently, the program will find the state f for the `when`, then find the 'g' state for the first `then`.
+        this is wrong though, because the actual second state is 'g' and 'h', which is different from the existing
+        state.
+
+when detecting key sequences
+    start creating a state on the first key down
+    check the tree with the created state on key up
+    erase the created state with each key up so that a new key down always has to happen to start the new state, this
+     is so we don't go down the tree in the wrong path
+
+    ex. a then b and c
+    a down - put an 'a' in the state to check
+    a up - check the state to check against the tree and find the corresponding node (lets say it exists)
+         - erase the state to check
+    b down - put a 'b' in the state to check
+    c down - put a 'c' in the state to check
+    b up - check the state to check against the tree and find the corresponding node
+         - erase the state to check
+    c up - erase the state to check
