@@ -67,18 +67,13 @@
         timeOfLastPress = currentTime;
     }
 
-    function listenForNextDecree() {
-        matchingDecreeIndexPath = [];
-    }
-
     function onKeyUp() {
         var stateList = getPotentiallyMatchingStates();
-        var matchingState = stateList.filter(doesStateMatchCurrentKeyboardState)[0];
 
-        if (matchingState !== undefined) {
-            matchingDecreeIndexPath.push(getMatchingStateIndex(stateList, doesStateMatchCurrentKeyboardState));
+        if (hasMatchingState(stateList, currentInputKeys)) {
+            matchingDecreeIndexPath.push(getMatchingStateIndex(stateList, currentInputKeys));
 
-            if (matchingState.hasOwnProperty('callback')) {
+            if (getLastMatchingState().hasOwnProperty('callback')) {
                 executeDecreeCallback();
                 listenForNextDecree();
             }
@@ -95,15 +90,13 @@
         }
     }
 
-    function doesStateMatchCurrentKeyboardState(state) {
-        return state.keyCodes.every(function(keyCode, index) {
-            return currentInputKeys.indexOf(keyCode) === index;
-        });
+    function hasMatchingState(stateList, keySequence) {
+        return getMatchingStateIndex(stateList, keySequence) !== null;
     }
 
-    function getMatchingStateIndex(stateList, matchingFn) {
+    function getMatchingStateIndex(stateList, keySequence) {
         for (var i = 0; i < stateList.length; i++) {
-            if (matchingFn(stateList[i])) {
+            if (doesStateMatchKeySequence(stateList[i], keySequence)) {
                 return i;
             }
         }
@@ -111,12 +104,10 @@
         return null;
     }
 
-    function executeDecreeCallback() {
-        var stateToExecute = getLastMatchingState();
-
-        if (stateToExecute.hasOwnProperty('callback')) {
-            stateToExecute.callback.call(null);
-        }
+    function doesStateMatchKeySequence(state, keySequence) {
+        return state.keyCodes.every(function(keyCode, index) {
+            return keySequence.indexOf(keyCode) === index;
+        });
     }
 
     function getLastMatchingState() {
@@ -131,80 +122,76 @@
         return state;
     }
 
-    function hasMatchingState(stateList, matchingFn) {
-        return getMatchingStateIndex(stateList, matchingFn) !== null;
+    function executeDecreeCallback() {
+        var stateToExecute = getLastMatchingState();
+
+        if (stateToExecute.hasOwnProperty('callback')) {
+            stateToExecute.callback.call(null);
+        }
+    }
+
+    function listenForNextDecree() {
+        matchingDecreeIndexPath = [];
     }
 
     window.when = function(key) {
-        var newDecreeStateKeyCodes = [];
+        var newDecreeStateKeySequence = [];
         var newDecreeIndexPath = [];
 
-        var keyCode = keyCodeMap[key];
-        newDecreeStateKeyCodes.push(keyCode);
-
-        if (hasMatchingState(decreeTree, doesStateMatchNewDecree)) {
-            newDecreeIndexPath.push(getMatchingStateIndex(decreeTree, doesStateMatchNewDecree));
-        } else {
-            decreeTree.push({
-                keyCodes: [keyCode],
-                children: []
-            });
-            newDecreeIndexPath.push(decreeTree.length - 1);
-        }
+        newDecreeStateKeySequence.push(keyCodeMap[key]);
 
         function then(key) {
-            //reset state key codes
-            newDecreeStateKeyCodes = [];
+            addStateToTree();
 
-            //add key code to current state
-            var keyCode = keyCodeMap[key];
-            newDecreeStateKeyCodes.push(keyCode);
-
-            var parentState = getStateAtIndexPath(newDecreeIndexPath);
-
-            if (hasMatchingState(parentState.children, doesStateMatchNewDecree)) {
-                newDecreeIndexPath.push(getMatchingStateIndex(parentState.children, doesStateMatchNewDecree));
-            } else {
-                parentState.children.push({
-                    keyCodes: [keyCode],
-                    children: []
-                });
-                newDecreeIndexPath.push(parentState.children.length - 1);
-            }
+            newDecreeStateKeySequence.push(keyCodeMap[key]);
 
             return {
                 then: then,
-                and: and,
+                withModifier: withModifier,
                 decree: decree
             };
         }
 
-        function and(key) {
-            var keyCode = keyCodeMap[key];
-            newDecreeStateKeyCodes.splice(0, 0, keyCode);
-
-            getStateAtIndexPath(newDecreeIndexPath).keyCodes.splice(0, 0, keyCode);
+        function withModifier(key) {
+            newDecreeStateKeySequence.splice(0, 0, keyCodeMap[key]);
 
             return {
                 then: then,
-                and: and,
+                withModifier: withModifier,
                 decree: decree
             };
         }
 
         function decree(callback) {
+            addStateToTree();
+
             getStateAtIndexPath(newDecreeIndexPath).callback = callback;
         }
 
-        function doesStateMatchNewDecree(state) {
-            return state.keyCodes.every(function(keyCode) {
-                return newDecreeStateKeyCodes.indexOf(keyCode) !== -1;
-            });
+        function addStateToTree() {
+            var stateList;
+            if (newDecreeIndexPath.length === 0) {
+                stateList = decreeTree;
+            } else {
+                stateList = getStateAtIndexPath(newDecreeIndexPath).children;
+            }
+
+            if (hasMatchingState(stateList, newDecreeStateKeySequence)) {
+                newDecreeIndexPath.push(getMatchingStateIndex(stateList, newDecreeStateKeySequence));
+            } else {
+                stateList.push({
+                    keyCodes: newDecreeStateKeySequence,
+                    children: []
+                });
+                newDecreeIndexPath.push(stateList.length - 1);
+            }
+
+            newDecreeStateKeySequence = [];
         }
 
         return {
             then: then,
-            and: and,
+            withModifier: withModifier,
             decree: decree
         };
     };

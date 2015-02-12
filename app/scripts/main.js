@@ -10,10 +10,6 @@ when('m').then('i').then('n').then('e').decree(function() {
     console.log('"mine" was pressed');
 });
 
-when('q').then('w').then('e').then('r').then('t').then('y').decree(function() {
-    console.log('"qwerty" was pressed');
-});
-
 when('w').then('o').decree(function() {
     console.log('I will be called because the "wo" key sequence is shorter than "woo".');
 });
@@ -26,10 +22,14 @@ when('up').then('up').then('down').then('down').then('left').then('right').then(
     alert('konami code!');
 });
 
-when('f').then('h').then('g').decree(function() {
-    console.log('thens');
+when('i').withModifier('j').decree(function() {
+    console.log('"i" with modifier "j" was pressed.');
 });
 
-when('f').then('h').and('g').decree(function() {
-    console.log('then and');
+when('b').then('a').then('m').decree(function() {
+    console.log('"b" then "a" then "m" was pressed.');
+});
+
+when('b').then('a').withModifier('m').decree(function() {
+    console.log('"b" then "a" with modifier "m" was pressed.');
 });
