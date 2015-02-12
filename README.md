@@ -107,6 +107,16 @@ when('q').withModifier('a').then('w').withModifier('s').decree(function() {
 });
 ```
 
+## Configuring Decree JS
+You can configure Decree JS by calling the `window.decreeConfig` method. This method takes one parameter, a JSON 
+object. The list of configurable properties, along with their defaults, is shown below in the sample code:
+ ```
+ window.decreeConfig({
+    timeThreshold: 500      //the time Decree JS waits between key presses to continue the current key sequence
+                            //this property is in milliseconds
+ });
+ ```
+
 ## Questions
 
 ### What happens if I register two modifiers on a key?

@@ -213,4 +213,10 @@
             decree: decree
         };
     };
+
+    window.decreeConfig = function(config) {
+        if (config.hasOwnProperty('timeThreshold')) {
+            timeThreshold = config.timeThreshold;
+        }
+    }
 })(window);
