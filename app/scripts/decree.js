@@ -45,6 +45,7 @@
 
     var matchingDecreeIndexPath = [];
 
+    var shouldListenForKeys = true;
     var currentInputKeys = [];
 
     var decreeTree = [];
@@ -70,13 +71,15 @@
     function onKeyUp() {
         var stateList = getPotentiallyMatchingStates();
 
-        if (hasMatchingState(stateList, currentInputKeys)) {
+        if (hasMatchingState(stateList, currentInputKeys) && shouldListenForKeys) {
             matchingDecreeIndexPath.push(getMatchingStateIndex(stateList, currentInputKeys));
 
             if (getLastMatchingState().hasOwnProperty('callback')) {
                 executeDecreeCallback();
                 listenForNextDecree();
             }
+        } else {
+            shouldListenForKeys = false;
         }
 
         currentInputKeys = [];
@@ -132,6 +135,7 @@
 
     function listenForNextDecree() {
         matchingDecreeIndexPath = [];
+        shouldListenForKeys = true;
     }
 
     window.when = function(key) {
