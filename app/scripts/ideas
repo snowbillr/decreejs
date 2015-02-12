@@ -2,9 +2,9 @@ when registering decrees
     `when` starts a new state being built, then the next method actually puts it on the tree. this way we don't add a
      state to the tree in the wrong place
     `then` also starts a new state, and the next method actually puts it on the tree
-    so `then`, `and`, and `decree` are methods that add the state being created to the tree
+    so the `then`, `and`, and `decree` are methods that add the state being created to the tree
 
-    ex. registering when('f').then('g').and('h') on a tree that already has when('f').then('g').and('h')
+    ex. registering when('f').then('g').and('h') on a tree that already has when('f').then('g').then('h')
         currently, the program will find the state f for the `when`, then find the 'g' state for the first `then`.
         this is wrong though, because the actual second state is 'g' and 'h', which is different from the existing
         state.

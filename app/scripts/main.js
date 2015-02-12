@@ -25,3 +25,11 @@ when('w').then('o').then('o').decree(function() {
 when('up').then('up').then('down').then('down').then('left').then('right').then('left').then('right').then('b').then('a').then('enter').decree(function() {
     alert('konami code!');
 });
+
+when('f').then('h').then('g').decree(function() {
+    console.log('thens');
+});
+
+when('f').then('h').and('g').decree(function() {
+    console.log('then and');
+});

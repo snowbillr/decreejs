@@ -44,44 +44,19 @@
     var cancelEndCurrentDecree;
 
     var matchingDecreeIndexPath = [];
-    var isMatchSoFar = true;
 
-    var keyboardState = [];
+    var currentInputKeys = [];
 
     var decreeTree = [];
 
     window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', markKeyAsNotPressed);
+    window.addEventListener('keyup', onKeyUp);
 
-    function onKeyDown(event) {
-        markKeyAsPressed(event.keyCode);
+    function onKeyDown(keyEvent) {
+        currentInputKeys.push(keyEvent.keyCode);
 
         allowKeySequenceToEndIfNoKeyPressWithinTimeThreshold();
-
-        if (isMatchSoFar) {
-            var stateList = getPotentiallyMatchingStates();
-            if (hasMatchingState(stateList,  doesStateMatchCurrentKeyboardState)) {
-                matchingDecreeIndexPath.push(getMatchingStateIndex(stateList, doesStateMatchCurrentKeyboardState));
-            } else {
-                isMatchSoFar = false;
-            }
-
-            var lastMatchingState = getLastMatchingState();
-            if (lastMatchingState && lastMatchingState.hasOwnProperty('callback')) {
-                executeDecreeCallback();
-                listenForNextDecree();
-            }
-        }
-
         cancelEndCurrentDecree = setTimeout(listenForNextDecree, timeThreshold);
-    }
-
-    function markKeyAsPressed(keyCode) {
-        keyboardState[keyCode] = true;
-    }
-
-    function markKeyAsNotPressed(event) {
-        keyboardState[event.keyCode] = false;
     }
 
     function allowKeySequenceToEndIfNoKeyPressWithinTimeThreshold() {
@@ -92,11 +67,55 @@
         timeOfLastPress = currentTime;
     }
 
+    function listenForNextDecree() {
+        matchingDecreeIndexPath = [];
+    }
+
+    function onKeyUp() {
+        var stateList = getPotentiallyMatchingStates();
+        var matchingState = stateList.filter(doesStateMatchCurrentKeyboardState)[0];
+
+        if (matchingState !== undefined) {
+            matchingDecreeIndexPath.push(getMatchingStateIndex(stateList, doesStateMatchCurrentKeyboardState));
+
+            if (matchingState.hasOwnProperty('callback')) {
+                executeDecreeCallback();
+                listenForNextDecree();
+            }
+        }
+
+        currentInputKeys = [];
+    }
+
     function getPotentiallyMatchingStates() {
         if (matchingDecreeIndexPath.length > 0) {
             return getLastMatchingState().children;
         } else {
             return decreeTree;
+        }
+    }
+
+    function doesStateMatchCurrentKeyboardState(state) {
+        return state.keyCodes.every(function(keyCode, index) {
+            return currentInputKeys.indexOf(keyCode) === index;
+        });
+    }
+
+    function getMatchingStateIndex(stateList, matchingFn) {
+        for (var i = 0; i < stateList.length; i++) {
+            if (matchingFn(stateList[i])) {
+                return i;
+            }
+        }
+
+        return null;
+    }
+
+    function executeDecreeCallback() {
+        var stateToExecute = getLastMatchingState();
+
+        if (stateToExecute.hasOwnProperty('callback')) {
+            stateToExecute.callback.call(null);
         }
     }
 
@@ -112,50 +131,14 @@
         return state;
     }
 
-    function getMatchingStateIndex(stateList, matchingFn) {
-        for (var i = 0; i < stateList.length; i++) {
-            if (matchingFn(stateList[i])) {
-                return i;
-            }
-        }
-
-        return null;
-    }
-
     function hasMatchingState(stateList, matchingFn) {
-        return getMatchingStateIndex(stateList, matchingFn) != null;
-    }
-
-
-    function doesStateMatchCurrentKeyboardState(decree) {
-        var isMatchingState = true;
-        decree.keyCodes.forEach(function(keyCode) {
-            if (!keyboardState[keyCode]) {
-                isMatchingState = false;
-            }
-        });
-
-        return isMatchingState;
-    }
-
-    function executeDecreeCallback() {
-        var stateToExecute = getLastMatchingState();
-
-        if (stateToExecute.hasOwnProperty('callback')) {
-            stateToExecute.callback.call(null);
-        }
-    }
-
-    function listenForNextDecree() {
-        matchingDecreeIndexPath = [];
-        isMatchSoFar = true;
+        return getMatchingStateIndex(stateList, matchingFn) !== null;
     }
 
     window.when = function(key) {
         var newDecreeStateKeyCodes = [];
         var newDecreeIndexPath = [];
 
-        //add key to new decree keycodes
         var keyCode = keyCodeMap[key];
         newDecreeStateKeyCodes.push(keyCode);
 
@@ -191,20 +174,20 @@
 
             return {
                 then: then,
-                and: withModifier,
+                and: and,
                 decree: decree
             };
         }
 
-        function withModifier(key) {
+        function and(key) {
             var keyCode = keyCodeMap[key];
-            newDecreeStateKeyCodes.push(keyCode);
+            newDecreeStateKeyCodes.splice(0, 0, keyCode);
 
-            getStateAtIndexPath(newDecreeIndexPath).keyCodes.push(keyCode);
+            getStateAtIndexPath(newDecreeIndexPath).keyCodes.splice(0, 0, keyCode);
 
             return {
                 then: then,
-                and: withModifier,
+                and: and,
                 decree: decree
             };
         }
@@ -221,7 +204,7 @@
 
         return {
             then: then,
-            and: withModifier,
+            and: and,
             decree: decree
         };
     };

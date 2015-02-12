@@ -67,11 +67,11 @@ when('w').then('o').then('o').decree(function() {
         </p>
         <p>
             Decree also supports key combinations instead of sequences, like pressing "shift" and "a" at the same time.
-            After a key is specified with <code>when</code> or <code>then</code> use the <code>and</code> method for
-            the modifier key you want.
+            After a key is specified with <code>when</code> or <code>then</code> use the <code>withModifier</code>
+            method for the modifier key you want.
             <pre>
-when('a').and('shift').decree(function() {
-    console.log('"shift" and "a" were pressed at the same time.');
+when('a').withModifier('shift').decree(function() {
+    console.log('"a" was pressed with modifier key "shift".');
 });
             </pre>
         </p>
