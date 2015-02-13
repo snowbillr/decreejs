@@ -123,7 +123,7 @@ object. The list of configurable properties, along with their defaults, is shown
 Currently, a modifier registers itself as the first key required to be pressed for the state it is attached to. So if
  I execute `when('c').withModifier('b').withModifier('a')`, I'll need to *press and hold* "a", then *press and hold* 
  "b", and then *press and release* "c", then *release* "a" and "b". Decree sees the state start its definition with 
- "a", then sees that we are adding a modifier of "b" to that, so it will put the modifier key in front of the main 
+ "c", then sees that we are adding a modifier of "b" to that, so it will put the modifier key in front of the main 
  key for the state, which looks like `["b", "c"]`. Then, it sees we're adding a second modifier, so it will put the 
  second modifier key in front of the key sequence, which will look like `["a", "b", "c"]`.
  
@@ -131,6 +131,7 @@ Currently, a modifier registers itself as the first key required to be pressed f
  
 
 ## List of Supported Keys
+These are the strings that the `when`, `then`, and `withModifier` methods can take as a parameter.
 - "space"
 - "enter"
 - "return"
