@@ -1,4 +1,0 @@
-- [x] make library
-- [x] document in README
-- [ ] make Gruntfile and build system
-- [ ] make github page
