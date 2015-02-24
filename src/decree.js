@@ -1,4 +1,143 @@
 (function(window) {
+    var RootNode = function() {
+        var children = [];
+
+        function hasMatchingChildWithKeySequence(keySequence) {
+            return getMatchingChildIndexWithKeySequence(keySequence) !== -1;
+        }
+
+        function getMatchingChildIndexWithKeySequence(keySequence) {
+            var matchingIndex = -1;
+
+            children.forEach(function(child, index) {
+                if (child.doesMatchKeySequence(keySequence)) {
+                    matchingIndex = index;
+                }
+            });
+
+            return matchingIndex;
+        }
+
+        function getMatchingChildWithKeySequence(keySequence) {
+            return children[getMatchingChildIndexWithKeySequence(keySequence)];
+        }
+
+        function addChild(state) {
+            children.push(state);
+        }
+
+        function getChildren() {
+            return children;
+        }
+
+        return {
+            hasMatchingChildWithKeySequence: hasMatchingChildWithKeySequence,
+            getMatchingChildIndexWithKeySequence: getMatchingChildIndexWithKeySequence,
+            getMatchingChildWithKeySequence: getMatchingChildWithKeySequence,
+            addChild: addChild,
+            getChildren: getChildren
+        };
+    };
+
+    var State = function(_keyCodes) {
+        var children = [];
+        var keyCodes = _keyCodes;
+        var callback = null;
+
+        function doesMatchKeySequence(keySequence) {
+            return keyCodes.every(function(keyCode, index) {
+                return keySequence.indexOf(keyCode) === index;
+            });
+        }
+
+        function hasMatchingChildWithKeySequence(keySequence) {
+            return getMatchingChildIndexWithKeySequence(keySequence) !== -1;
+        }
+
+        function getMatchingChildIndexWithKeySequence(keySequence) {
+            var matchingIndex = -1;
+
+            children.forEach(function(child, index) {
+                if (child.doesMatchKeySequence(keySequence)) {
+                    matchingIndex = index;
+                }
+            });
+
+            return matchingIndex;
+        }
+
+        function getMatchingChildWithKeySequence(keySequence) {
+            return children[getMatchingChildIndexWithKeySequence(keySequence)];
+        }
+
+        function addChild(state) {
+            children.push(state);
+        }
+
+        function getKeyCodes() {
+            return keyCodes;
+        }
+
+        function getChildren() {
+            return children;
+        }
+
+        function setCallback(cb) {
+            callback = cb;
+        }
+
+        function getCallback() {
+            return callback;
+        }
+
+        function hasCallback() {
+            return callback !== null
+        }
+
+        return {
+            addChild: addChild,
+            getChildren: getChildren,
+            getKeyCodes: getKeyCodes,
+            setCallback: setCallback,
+            getCallback: getCallback,
+            hasCallback: hasCallback,
+            doesMatchKeySequence: doesMatchKeySequence,
+            hasMatchingChildWithKeySequence: hasMatchingChildWithKeySequence,
+            getMatchingChildIndexWithKeySequence: getMatchingChildIndexWithKeySequence,
+            getMatchingChildWithKeySequence: getMatchingChildWithKeySequence
+        };
+    };
+
+    var StateTree = function() {
+        var rootNode = new RootNode();
+
+        function addStateAtIndexPath(state, indexPath) {
+            if (indexPath.length === 0) {
+                rootNode.addChild(state);
+            } else {
+                getStateAtIndexPath(indexPath).addChild(state);
+            }
+        }
+
+        function getStateAtIndexPath(indexPath) {
+            if (indexPath.length === 0) {
+                return rootNode;
+            } else {
+                var state = rootNode.getChildren()[indexPath[0]];
+                for (var i = 1; i < indexPath.length; i++) {
+                    state = state.getChildren()[indexPath[i]];
+                }
+
+                return state;
+            }
+        }
+
+        return {
+            getStateAtIndexPath: getStateAtIndexPath,
+            addStateAtIndexPath: addStateAtIndexPath
+        };
+    };
+
     var keyCodeMap = {
         "space": 32,
         "enter": 13,
@@ -62,7 +201,7 @@
     var shouldListenForKeys = true;
     var currentInputKeys = [];
 
-    var decreeTree = [];
+    var decreeTree = new StateTree();
 
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
@@ -84,10 +223,10 @@
     }
 
     function onKeyUp() {
-        var stateList = getPotentiallyMatchingStates();
+        var lastMatchingState = getLastMatchingState();
 
-        if (shouldListenForKeys && hasMatchingState(stateList, currentInputKeys)) {
-            matchingDecreeIndexPath.push(getMatchingStateIndex(stateList, currentInputKeys));
+        if (shouldListenForKeys && lastMatchingState.hasMatchingChildWithKeySequence(currentInputKeys)) {
+            matchingDecreeIndexPath.push(lastMatchingState.getMatchingChildIndexWithKeySequence(currentInputKeys));
 
             if (getLastMatchingState().hasCallback()) {
                 executeDecreeCallback();
@@ -100,44 +239,8 @@
         currentInputKeys = [];
     }
 
-    function getPotentiallyMatchingStates() {
-        if (matchingDecreeIndexPath.length > 0) {
-            return getLastMatchingState().getChildren();
-        } else {
-            return decreeTree;
-        }
-    }
-
-    function hasMatchingState(stateList, keySequence) {
-        return getMatchingStateIndex(stateList, keySequence) !== null;
-    }
-
-    function getMatchingStateIndex(stateList, keySequence) {
-        for (var i = 0; i < stateList.length; i++) {
-            if (doesStateMatchKeySequence(stateList[i], keySequence)) {
-                return i;
-            }
-        }
-
-        return null;
-    }
-
-    function doesStateMatchKeySequence(state, keySequence) {
-        return state.getKeyCodes().every(function(keyCode, index) {
-            return keySequence.indexOf(keyCode) === index;
-        });
-    }
-
     function getLastMatchingState() {
-        return getStateAtIndexPath(matchingDecreeIndexPath);
-    }
-
-    function getStateAtIndexPath(indexPath) {
-        var state = decreeTree[indexPath[0]];
-        for (var i = 1; i < indexPath.length; i++) {
-            state = state.getChildren()[indexPath[i]];
-        }
-        return state;
+        return decreeTree.getStateAtIndexPath(matchingDecreeIndexPath);
     }
 
     function executeDecreeCallback() {
@@ -169,9 +272,14 @@
         };
 
         function then(key) {
-            addStateToTree();
+            if (decreeTree.getStateAtIndexPath(newDecreeIndexPath).hasMatchingChildWithKeySequence(newDecreeStateKeySequence)) {
+                newDecreeIndexPath.push(decreeTree.getStateAtIndexPath(newDecreeIndexPath).getMatchingChildIndexWithKeySequence(newDecreeStateKeySequence))
+            } else {
+                decreeTree.getStateAtIndexPath(newDecreeIndexPath).addChild(new State(newDecreeStateKeySequence));
+                newDecreeIndexPath.push(decreeTree.getStateAtIndexPath(newDecreeIndexPath).getChildren().length - 1);
+            }
 
-            newDecreeStateKeySequence.push(keyCodeMap[key]);
+            newDecreeStateKeySequence = [keyCodeMap[key]];
 
             return {
                 then: then,
@@ -191,28 +299,14 @@
         }
 
         function perform(callback) {
-            addStateToTree();
-
-            getStateAtIndexPath(newDecreeIndexPath).setCallback(callback);
-        }
-
-        function addStateToTree() {
-            var stateList;
-            if (newDecreeIndexPath.length === 0) {
-                stateList = decreeTree;
-            } else {
-                stateList = getStateAtIndexPath(newDecreeIndexPath).getChildren();
-            }
-
-            if (hasMatchingState(stateList, newDecreeStateKeySequence)) {
-                newDecreeIndexPath.push(getMatchingStateIndex(stateList, newDecreeStateKeySequence));
+            if (decreeTree.getStateAtIndexPath(newDecreeIndexPath).hasMatchingChildWithKeySequence(newDecreeStateKeySequence)) {
+                decreeTree.getStateAtIndexPath(newDecreeIndexPath).getMatchingChildWithKeySequence(newDecreeStateKeySequence).setCallback(callback);
             } else {
                 var newState = new State(newDecreeStateKeySequence);
-                stateList.push(newState);
-                newDecreeIndexPath.push(stateList.length - 1);
-            }
+                newState.setCallback(callback)
 
-            newDecreeStateKeySequence = [];
+                decreeTree.getStateAtIndexPath(newDecreeIndexPath).addChild(newState);
+            }
         }
     }
 
@@ -221,67 +315,5 @@
             timeThreshold = options.timeThreshold;
         }
     }
-
-    var StateTree = function() {
-        var tree = [];
-
-        function addState(state) {
-
-        }
-
-        function getStateAtIndexPath() {
-
-        }
-
-        return {};
-    };
-
-    var State = function(_keyCodes) {
-        var children = [];
-        var keyCodes = _keyCodes;
-        var callback = null;
-
-        function doesMatchKeySequence(keySequence) {
-            return keyCodes.every(function(keyCode, index) {
-                return keySequence.indexOf(keyCode) === index;
-            });
-        }
-
-        function getChildWithKeySequence(keySequence) {
-
-        }
-
-        function addChild(state) {
-            children.push(state);
-        }
-
-        function getKeyCodes() {
-            return keyCodes;
-        }
-
-        function getChildren() {
-            return children;
-        }
-
-        function setCallback(cb) {
-            callback = cb;
-        }
-
-        function getCallback() {
-            return callback;
-        }
-
-        function hasCallback() {
-            return callback !== null
-        }
-
-        return {
-            getChildren: getChildren,
-            getKeyCodes: getKeyCodes,
-            setCallback: setCallback,
-            getCallback: getCallback,
-            hasCallback: hasCallback
-        };
-    };
 
 })(window);
