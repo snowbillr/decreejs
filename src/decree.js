@@ -152,11 +152,23 @@
         shouldListenForKeys = true;
     }
 
-    window.when = function(key) {
+    window.decree = {
+        when: when,
+        config: decreeConfig
+    };
+
+
+    function when(key) {
         var newDecreeStateKeySequence = [];
         var newDecreeIndexPath = [];
 
         newDecreeStateKeySequence.push(keyCodeMap[key]);
+
+        return {
+            then: then,
+            withModifier: withModifier,
+            perform: perform
+        };
 
         function then(key) {
             addStateToTree();
@@ -166,7 +178,7 @@
             return {
                 then: then,
                 withModifier: withModifier,
-                decree: decree
+                perform: perform
             };
         }
 
@@ -176,11 +188,11 @@
             return {
                 then: then,
                 withModifier: withModifier,
-                decree: decree
+                perform: perform
             };
         }
 
-        function decree(callback) {
+        function perform(callback) {
             addStateToTree();
 
             getStateAtIndexPath(newDecreeIndexPath).callback = callback;
@@ -206,15 +218,9 @@
 
             newDecreeStateKeySequence = [];
         }
+    }
 
-        return {
-            then: then,
-            withModifier: withModifier,
-            decree: decree
-        };
-    };
-
-    window.decreeConfig = function(config) {
+    function decreeConfig(config) {
         if (config.hasOwnProperty('timeThreshold')) {
             timeThreshold = config.timeThreshold;
         }

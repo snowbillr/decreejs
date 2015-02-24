@@ -5,7 +5,7 @@ describe('Decree JS', function() {
         it('of length: 1', function() {
             var wasCallbackCalled = false;
 
-            when('a').decree(function() {
+            decree.when('a').perform(function() {
                 wasCallbackCalled = true;
             });
 
@@ -18,7 +18,7 @@ describe('Decree JS', function() {
         it('of length: 2', function() {
             var wasCallbackCalled = false;
 
-            when('b').then('c').decree(function() {
+            decree.when('b').then('c').perform(function() {
                 wasCallbackCalled = true;
             });
 
@@ -33,7 +33,7 @@ describe('Decree JS', function() {
         it('of length: 3', function() {
             var wasCallbackCalled = false;
 
-            when('c').then('d').then('e').decree(function() {
+            decree.when('c').then('d').then('e').perform(function() {
                 wasCallbackCalled = true;
             });
 
@@ -52,7 +52,7 @@ describe('Decree JS', function() {
         it('works when the modifier key is pressed before the main key', function() {
             var wasCallbackCalled = false;
 
-            when('b').withModifier('a').decree(function() {
+            decree.when('b').withModifier('a').perform(function() {
                 wasCallbackCalled = true;
             });
 
