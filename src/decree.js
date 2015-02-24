@@ -229,7 +229,7 @@
             matchingDecreeIndexPath.push(lastMatchingState.getMatchingChildIndexWithKeySequence(currentInputKeys));
 
             if (getLastMatchingState().hasCallback()) {
-                executeDecreeCallback();
+                getLastMatchingState().getCallback().call(null);
                 listenForNextDecree();
             }
         } else {
@@ -243,21 +243,10 @@
         return decreeTree.getStateAtIndexPath(matchingDecreeIndexPath);
     }
 
-    function executeDecreeCallback() {
-        var stateToExecute = getLastMatchingState();
-
-        stateToExecute.getCallback().call(null);
-    }
-
     function listenForNextDecree() {
         matchingDecreeIndexPath = [];
         shouldListenForKeys = true;
     }
-
-    window.decree = {
-        when: when,
-        config: config
-    };
 
     function when(key) {
         var newDecreeStateKeySequence = [];
@@ -303,7 +292,7 @@
                 decreeTree.getStateAtIndexPath(newDecreeIndexPath).getMatchingChildWithKeySequence(newDecreeStateKeySequence).setCallback(callback);
             } else {
                 var newState = new State(newDecreeStateKeySequence);
-                newState.setCallback(callback)
+                newState.setCallback(callback);
 
                 decreeTree.getStateAtIndexPath(newDecreeIndexPath).addChild(newState);
             }
@@ -315,5 +304,11 @@
             timeThreshold = options.timeThreshold;
         }
     }
+
+    window.decree = {
+        when: when,
+        config: config
+    };
+
 
 })(window);
