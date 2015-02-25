@@ -1,5 +1,5 @@
 (function(window) {
-    var RootNode = function() {
+    function RootNode() {
         var children = [];
 
         function hasMatchingChildWithKeySequence(keySequence) {
@@ -37,9 +37,9 @@
             addChild: addChild,
             getChildren: getChildren
         };
-    };
+    }
 
-    var State = function(_keyCodes) {
+    function State(_keyCodes) {
         var children = [];
         var keyCodes = _keyCodes;
         var callback = null;
@@ -97,18 +97,18 @@
         return {
             addChild: addChild,
             getChildren: getChildren,
+            hasMatchingChildWithKeySequence: hasMatchingChildWithKeySequence,
+            getMatchingChildIndexWithKeySequence: getMatchingChildIndexWithKeySequence,
+            getMatchingChildWithKeySequence: getMatchingChildWithKeySequence,
             getKeyCodes: getKeyCodes,
             setCallback: setCallback,
             getCallback: getCallback,
             hasCallback: hasCallback,
-            doesMatchKeySequence: doesMatchKeySequence,
-            hasMatchingChildWithKeySequence: hasMatchingChildWithKeySequence,
-            getMatchingChildIndexWithKeySequence: getMatchingChildIndexWithKeySequence,
-            getMatchingChildWithKeySequence: getMatchingChildWithKeySequence
+            doesMatchKeySequence: doesMatchKeySequence
         };
-    };
+    }
 
-    var StateTree = function() {
+    function StateTree() {
         var rootNode = new RootNode();
 
         function addStateAtIndexPath(state, indexPath) {
