@@ -90,6 +90,10 @@
         return this._callback !== null
     };
 
+    //
+    // Decree JS
+    //
+
     var keyCodeMap = {
         "space": 32,
         "enter": 13,
@@ -150,7 +154,6 @@
 
     var matchingDecreeIndexPath = [];
 
-    var shouldListenForKeys = true;
     var currentInputKeys = [];
 
     var decreeTree = new StateTree();
@@ -177,15 +180,13 @@
     function onKeyUp() {
         var lastMatchingStateTreeNode = getLastMatchingStateTreeNode();
 
-        if (shouldListenForKeys && lastMatchingStateTreeNode.hasChildMatchingKeySequence(currentInputKeys)) {
+        if (lastMatchingStateTreeNode.hasChildMatchingKeySequence(currentInputKeys)) {
             matchingDecreeIndexPath.push(lastMatchingStateTreeNode.getChildIndexMatchingKeySequence(currentInputKeys));
 
             if (getLastMatchingStateTreeNode().getState().hasCallback()) {
                 getLastMatchingStateTreeNode().getState().getCallback().call(null);
                 listenForNextDecree();
             }
-        } else {
-            shouldListenForKeys = false;
         }
 
         currentInputKeys = [];
@@ -197,7 +198,6 @@
 
     function listenForNextDecree() {
         matchingDecreeIndexPath = [];
-        shouldListenForKeys = true;
     }
 
     function when(key) {
