@@ -19,7 +19,8 @@ module.exports = function(grunt) {
     // Configurable paths
     var config = {
         src: 'src',
-        dist: 'dist'
+        dist: 'dist',
+        temp: 'temp'
     };
 
     // Define the configuration for all the tasks
@@ -42,7 +43,8 @@ module.exports = function(grunt) {
                 files: [{
                             dot: true,
                             src: [
-                                '<%= config.dist %>/*'
+                                '<%= config.dist %>/*',
+                                '<%= config.temp %>/*'
                             ]
                         }]
             }
@@ -61,11 +63,33 @@ module.exports = function(grunt) {
             ]
         },
 
+        concat: {
+            dist: {
+                src: [
+                    '<%= config.src %>/state.js',
+                    '<%= config.src %>/state-tree-node.js',
+                    '<%= config.src %>/state-tree.js',
+                    '<%= config.src %>/decree.js',
+                ],
+                dest: '<%= config.temp %>/all-concat.js'
+            }
+        },
+
+        wrap: {
+            dist: {
+                src: '<%= config.temp %>/all-concat.js',
+                dest: '<%= config.temp %>/wrapped.js',
+                options: {
+                    wrapper: [';(function(window) {', '})(window);']
+                }
+            }
+        },
+
         uglify: {
             dist: {
                 files: {
                     '<%= config.dist %>/decree.min.js': [
-                        '<%= config.src %>/decree.js'
+                        '<%= config.temp %>/wrapped.js'
                     ]
                 }
             }
@@ -84,6 +108,8 @@ module.exports = function(grunt) {
 
     grunt.registerTask('build', [
         'clean:dist',
+        'concat:dist',
+        'wrap:dist',
         'uglify:dist'
     ]);
 };
