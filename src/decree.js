@@ -1,18 +1,18 @@
 (function(window) {
 
     //
-    // RootNode
+    // StateTreeNode
     //
 
-    function RootNode() {
+    function StateTreeNode() {
         this._children = [];
     }
 
-    RootNode.prototype.hasMatchingChildWithKeySequence = function(keySequence) {
+    StateTreeNode.prototype.hasMatchingChildWithKeySequence = function(keySequence) {
         return this.getMatchingChildIndexWithKeySequence(keySequence) !== -1;
     };
 
-    RootNode.prototype.getMatchingChildIndexWithKeySequence = function(keySequence) {
+    StateTreeNode.prototype.getMatchingChildIndexWithKeySequence = function(keySequence) {
         var matchingIndex = -1;
 
         this._children.forEach(function(child, index) {
@@ -24,15 +24,15 @@
         return matchingIndex;
     };
 
-    RootNode.prototype.getMatchingChildWithKeySequence = function(keySequence) {
+    StateTreeNode.prototype.getMatchingChildWithKeySequence = function(keySequence) {
         return this._children[this.getMatchingChildIndexWithKeySequence(keySequence)];
     };
 
-    RootNode.prototype.addChild = function(state) {
+    StateTreeNode.prototype.addChild = function(state) {
         this._children.push(state);
     };
 
-    RootNode.prototype.getChildren = function() {
+    StateTreeNode.prototype.getChildren = function() {
         return this._children;
     };
 
@@ -102,7 +102,7 @@
     //
 
     function StateTree() {
-        this._rootNode = new RootNode();
+        this._rootNode = new StateTreeNode();
     }
 
     StateTree.prototype.addStateAtIndexPath = function(state, indexPath) {
