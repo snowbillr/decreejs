@@ -20,3 +20,7 @@ State.prototype.executeCallback = function() {
 State.prototype.hasCallback = function() {
     return this._callback !== null
 };
+
+State.prototype.removeCallback = function() {
+    this._callback = null;
+}

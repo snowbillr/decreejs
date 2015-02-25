@@ -14,3 +14,7 @@ StateTree.prototype.getStateTreeNodeAtIndexPath = function(indexPath) {
         return state;
     }
 };
+
+StateTree.prototype.prune = function() {
+
+};

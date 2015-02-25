@@ -152,6 +152,13 @@ function when(key) {
 
             decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).addChild(newState);
         }
+
+        var callbackIndexPath = newDecreeIndexPath.slice();
+
+        return function() {
+            decreeTree.getStateTreeNodeAtIndexPath(callbackIndexPath).getState().removeCallback();
+            decreeTree.prune();
+        }
     }
 }
 
