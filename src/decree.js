@@ -30,11 +30,11 @@
         this._state = state;
     }
 
-    StateTreeNode.prototype.hasMatchingChildWithKeySequence = function(keySequence) {
-        return this.getMatchingChildIndexWithKeySequence(keySequence) !== -1;
+    StateTreeNode.prototype.hasChildMatchingKeySequence = function(keySequence) {
+        return this.getChildIndexMatchingKeySequence(keySequence) !== -1;
     };
 
-    StateTreeNode.prototype.getMatchingChildIndexWithKeySequence = function(keySequence) {
+    StateTreeNode.prototype.getChildIndexMatchingKeySequence = function(keySequence) {
         var matchingIndex = -1;
 
         this._children.forEach(function(child, index) {
@@ -46,8 +46,8 @@
         return matchingIndex;
     };
 
-    StateTreeNode.prototype.getMatchingChildWithKeySequence = function(keySequence) {
-        return this._children[this.getMatchingChildIndexWithKeySequence(keySequence)];
+    StateTreeNode.prototype.getChildMatchingKeySequence = function(keySequence) {
+        return this._children[this.getChildIndexMatchingKeySequence(keySequence)];
     };
 
     StateTreeNode.prototype.addChild = function(state) {
@@ -177,8 +177,8 @@
     function onKeyUp() {
         var lastMatchingStateTreeNode = getLastMatchingStateTreeNode();
 
-        if (shouldListenForKeys && lastMatchingStateTreeNode.hasMatchingChildWithKeySequence(currentInputKeys)) {
-            matchingDecreeIndexPath.push(lastMatchingStateTreeNode.getMatchingChildIndexWithKeySequence(currentInputKeys));
+        if (shouldListenForKeys && lastMatchingStateTreeNode.hasChildMatchingKeySequence(currentInputKeys)) {
+            matchingDecreeIndexPath.push(lastMatchingStateTreeNode.getChildIndexMatchingKeySequence(currentInputKeys));
 
             if (getLastMatchingStateTreeNode().getState().hasCallback()) {
                 getLastMatchingStateTreeNode().getState().getCallback().call(null);
@@ -213,8 +213,8 @@
         };
 
         function then(key) {
-            if (decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).hasMatchingChildWithKeySequence(newDecreeStateKeySequence)) {
-                newDecreeIndexPath.push(decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).getMatchingChildIndexWithKeySequence(newDecreeStateKeySequence))
+            if (decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).hasChildMatchingKeySequence(newDecreeStateKeySequence)) {
+                newDecreeIndexPath.push(decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).getChildIndexMatchingKeySequence(newDecreeStateKeySequence))
             } else {
                 decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).addChild(new State(newDecreeStateKeySequence));
                 newDecreeIndexPath.push(decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).getChildren().length - 1);
@@ -240,8 +240,8 @@
         }
 
         function perform(callback) {
-            if (decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).hasMatchingChildWithKeySequence(newDecreeStateKeySequence)) {
-                decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).getMatchingChildWithKeySequence(newDecreeStateKeySequence).getState().setCallback(callback);
+            if (decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).hasChildMatchingKeySequence(newDecreeStateKeySequence)) {
+                decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).getChildMatchingKeySequence(newDecreeStateKeySequence).getState().setCallback(callback);
             } else {
                 var newState = new State(newDecreeStateKeySequence);
                 newState.setCallback(callback);
