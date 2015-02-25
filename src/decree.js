@@ -8,7 +8,7 @@
         this._rootNode = new StateTreeNode();
     }
 
-    StateTree.prototype.getStateAtIndexPath = function(indexPath) {
+    StateTree.prototype.getStateTreeNodeAtIndexPath = function(indexPath) {
         if (indexPath.length === 0) {
             return this._rootNode;
         } else {
@@ -175,13 +175,13 @@
     }
 
     function onKeyUp() {
-        var lastMatchingState = getLastMatchingStateNode();
+        var lastMatchingStateTreeNode = getLastMatchingStateTreeNode();
 
-        if (shouldListenForKeys && lastMatchingState.hasMatchingChildWithKeySequence(currentInputKeys)) {
-            matchingDecreeIndexPath.push(lastMatchingState.getMatchingChildIndexWithKeySequence(currentInputKeys));
+        if (shouldListenForKeys && lastMatchingStateTreeNode.hasMatchingChildWithKeySequence(currentInputKeys)) {
+            matchingDecreeIndexPath.push(lastMatchingStateTreeNode.getMatchingChildIndexWithKeySequence(currentInputKeys));
 
-            if (getLastMatchingStateNode().getState().hasCallback()) {
-                getLastMatchingStateNode().getState().getCallback().call(null);
+            if (getLastMatchingStateTreeNode().getState().hasCallback()) {
+                getLastMatchingStateTreeNode().getState().getCallback().call(null);
                 listenForNextDecree();
             }
         } else {
@@ -191,8 +191,8 @@
         currentInputKeys = [];
     }
 
-    function getLastMatchingStateNode() {
-        return decreeTree.getStateAtIndexPath(matchingDecreeIndexPath);
+    function getLastMatchingStateTreeNode() {
+        return decreeTree.getStateTreeNodeAtIndexPath(matchingDecreeIndexPath);
     }
 
     function listenForNextDecree() {
@@ -213,11 +213,11 @@
         };
 
         function then(key) {
-            if (decreeTree.getStateAtIndexPath(newDecreeIndexPath).hasMatchingChildWithKeySequence(newDecreeStateKeySequence)) {
-                newDecreeIndexPath.push(decreeTree.getStateAtIndexPath(newDecreeIndexPath).getMatchingChildIndexWithKeySequence(newDecreeStateKeySequence))
+            if (decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).hasMatchingChildWithKeySequence(newDecreeStateKeySequence)) {
+                newDecreeIndexPath.push(decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).getMatchingChildIndexWithKeySequence(newDecreeStateKeySequence))
             } else {
-                decreeTree.getStateAtIndexPath(newDecreeIndexPath).addChild(new State(newDecreeStateKeySequence));
-                newDecreeIndexPath.push(decreeTree.getStateAtIndexPath(newDecreeIndexPath).getChildren().length - 1);
+                decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).addChild(new State(newDecreeStateKeySequence));
+                newDecreeIndexPath.push(decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).getChildren().length - 1);
             }
 
             newDecreeStateKeySequence = [keyCodeMap[key]];
@@ -240,13 +240,13 @@
         }
 
         function perform(callback) {
-            if (decreeTree.getStateAtIndexPath(newDecreeIndexPath).hasMatchingChildWithKeySequence(newDecreeStateKeySequence)) {
-                decreeTree.getStateAtIndexPath(newDecreeIndexPath).getMatchingChildWithKeySequence(newDecreeStateKeySequence).getState().setCallback(callback);
+            if (decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).hasMatchingChildWithKeySequence(newDecreeStateKeySequence)) {
+                decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).getMatchingChildWithKeySequence(newDecreeStateKeySequence).getState().setCallback(callback);
             } else {
                 var newState = new State(newDecreeStateKeySequence);
                 newState.setCallback(callback);
 
-                decreeTree.getStateAtIndexPath(newDecreeIndexPath).addChild(newState);
+                decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).addChild(newState);
             }
         }
     }
