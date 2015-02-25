@@ -82,8 +82,8 @@
         this._callback = callback;
     };
 
-    State.prototype.getCallback = function() {
-        return this._callback;
+    State.prototype.executeCallback = function() {
+        this._callback.call(null);
     };
 
     State.prototype.hasCallback = function() {
@@ -184,7 +184,7 @@
             matchingDecreeIndexPath.push(lastMatchingStateTreeNode.getChildIndexMatchingKeySequence(currentInputKeys));
 
             if (getLastMatchingStateTreeNode().getState().hasCallback()) {
-                getLastMatchingStateTreeNode().getState().getCallback().call(null);
+                getLastMatchingStateTreeNode().getState().executeCallback();
                 listenForNextDecree();
             }
         }
