@@ -1,141 +1,129 @@
 (function(window) {
+
+    //
+    // RootNode
+    //
+
     function RootNode() {
-        var children = [];
-
-        function hasMatchingChildWithKeySequence(keySequence) {
-            return getMatchingChildIndexWithKeySequence(keySequence) !== -1;
-        }
-
-        function getMatchingChildIndexWithKeySequence(keySequence) {
-            var matchingIndex = -1;
-
-            children.forEach(function(child, index) {
-                if (child.doesMatchKeySequence(keySequence)) {
-                    matchingIndex = index;
-                }
-            });
-
-            return matchingIndex;
-        }
-
-        function getMatchingChildWithKeySequence(keySequence) {
-            return children[getMatchingChildIndexWithKeySequence(keySequence)];
-        }
-
-        function addChild(state) {
-            children.push(state);
-        }
-
-        function getChildren() {
-            return children;
-        }
-
-        return {
-            hasMatchingChildWithKeySequence: hasMatchingChildWithKeySequence,
-            getMatchingChildIndexWithKeySequence: getMatchingChildIndexWithKeySequence,
-            getMatchingChildWithKeySequence: getMatchingChildWithKeySequence,
-            addChild: addChild,
-            getChildren: getChildren
-        };
+        this._children = [];
     }
 
-    function State(_keyCodes) {
-        var children = [];
-        var keyCodes = _keyCodes;
-        var callback = null;
+    RootNode.prototype.hasMatchingChildWithKeySequence = function(keySequence) {
+        return this.getMatchingChildIndexWithKeySequence(keySequence) !== -1;
+    };
 
-        function doesMatchKeySequence(keySequence) {
-            return keyCodes.every(function(keyCode, index) {
-                return keySequence.indexOf(keyCode) === index;
-            });
-        }
+    RootNode.prototype.getMatchingChildIndexWithKeySequence = function(keySequence) {
+        var matchingIndex = -1;
 
-        function hasMatchingChildWithKeySequence(keySequence) {
-            return getMatchingChildIndexWithKeySequence(keySequence) !== -1;
-        }
+        this._children.forEach(function(child, index) {
+            if (child.doesMatchKeySequence(keySequence)) {
+                matchingIndex = index;
+            }
+        });
 
-        function getMatchingChildIndexWithKeySequence(keySequence) {
-            var matchingIndex = -1;
+        return matchingIndex;
+    };
 
-            children.forEach(function(child, index) {
-                if (child.doesMatchKeySequence(keySequence)) {
-                    matchingIndex = index;
-                }
-            });
+    RootNode.prototype.getMatchingChildWithKeySequence = function(keySequence) {
+        return this._children[this.getMatchingChildIndexWithKeySequence(keySequence)];
+    };
 
-            return matchingIndex;
-        }
+    RootNode.prototype.addChild = function(state) {
+        this._children.push(state);
+    };
 
-        function getMatchingChildWithKeySequence(keySequence) {
-            return children[getMatchingChildIndexWithKeySequence(keySequence)];
-        }
+    RootNode.prototype.getChildren = function() {
+        return this._children;
+    };
 
-        function addChild(state) {
-            children.push(state);
-        }
 
-        function getKeyCodes() {
-            return keyCodes;
-        }
+    //
+    // State
+    //
 
-        function getChildren() {
-            return children;
-        }
-
-        function setCallback(cb) {
-            callback = cb;
-        }
-
-        function getCallback() {
-            return callback;
-        }
-
-        function hasCallback() {
-            return callback !== null
-        }
-
-        return {
-            addChild: addChild,
-            getChildren: getChildren,
-            hasMatchingChildWithKeySequence: hasMatchingChildWithKeySequence,
-            getMatchingChildIndexWithKeySequence: getMatchingChildIndexWithKeySequence,
-            getMatchingChildWithKeySequence: getMatchingChildWithKeySequence,
-            getKeyCodes: getKeyCodes,
-            setCallback: setCallback,
-            getCallback: getCallback,
-            hasCallback: hasCallback,
-            doesMatchKeySequence: doesMatchKeySequence
-        };
+    function State(keyCodes) {
+        this._children = [];
+        this._keyCodes = keyCodes;
+        this._callback = null;
     }
+
+    State.prototype.doesMatchKeySequence = function(keySequence) {
+        return this._keyCodes.every(function(keyCode, index) {
+            return keySequence.indexOf(keyCode) === index;
+        });
+    };
+
+    State.prototype.hasMatchingChildWithKeySequence = function(keySequence) {
+        return this.getMatchingChildIndexWithKeySequence(keySequence) !== -1;
+    };
+
+    State.prototype.getMatchingChildIndexWithKeySequence = function(keySequence) {
+        var matchingIndex = -1;
+
+        this._children.forEach(function(child, index) {
+            if (child.doesMatchKeySequence(keySequence)) {
+                matchingIndex = index;
+            }
+        });
+
+        return matchingIndex;
+    };
+
+    State.prototype.getMatchingChildWithKeySequence = function(keySequence) {
+        return this._children[this.getMatchingChildIndexWithKeySequence(keySequence)];
+    };
+
+    State.prototype.addChild = function(state) {
+        this._children.push(state);
+    };
+
+    State.prototype.getKeyCodes = function() {
+        return this._keyCodes;
+    };
+
+    State.prototype.getChildren = function() {
+        return this._children;
+    };
+
+    State.prototype.setCallback = function(callback) {
+        this._callback = callback;
+    };
+
+    State.prototype.getCallback = function() {
+        return this._callback;
+    };
+
+    State.prototype.hasCallback = function() {
+        return this._callback !== null
+    };
+
+    //
+    // StateTree
+    //
 
     function StateTree() {
-        var rootNode = new RootNode();
+        this._rootNode = new RootNode();
+    }
 
-        function addStateAtIndexPath(state, indexPath) {
-            if (indexPath.length === 0) {
-                rootNode.addChild(state);
-            } else {
-                getStateAtIndexPath(indexPath).addChild(state);
-            }
+    StateTree.prototype.addStateAtIndexPath = function(state, indexPath) {
+        if (indexPath.length === 0) {
+            this._rootNode.addChild(state);
+        } else {
+            this.getStateAtIndexPath(indexPath).addChild(state);
         }
+    };
 
-        function getStateAtIndexPath(indexPath) {
-            if (indexPath.length === 0) {
-                return rootNode;
-            } else {
-                var state = rootNode.getChildren()[indexPath[0]];
-                for (var i = 1; i < indexPath.length; i++) {
-                    state = state.getChildren()[indexPath[i]];
-                }
-
-                return state;
+    StateTree.prototype.getStateAtIndexPath = function(indexPath) {
+        if (indexPath.length === 0) {
+            return this._rootNode;
+        } else {
+            var state = this._rootNode.getChildren()[indexPath[0]];
+            for (var i = 1; i < indexPath.length; i++) {
+                state = state.getChildren()[indexPath[i]];
             }
-        }
 
-        return {
-            getStateAtIndexPath: getStateAtIndexPath,
-            addStateAtIndexPath: addStateAtIndexPath
-        };
+            return state;
+        }
     };
 
     var keyCodeMap = {
