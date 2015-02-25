@@ -1,4 +1,99 @@
 (function(window) {
+
+    //
+    // StateTree
+    //
+
+    function StateTree() {
+        this._rootNode = new StateTreeNode();
+    }
+
+    StateTree.prototype.getStateTreeNodeAtIndexPath = function(indexPath) {
+        if (indexPath.length === 0) {
+            return this._rootNode;
+        } else {
+            var state = this._rootNode.getChildren()[indexPath[0]];
+            for (var i = 1; i < indexPath.length; i++) {
+                state = state.getChildren()[indexPath[i]];
+            }
+
+            return state;
+        }
+    };
+
+    //
+    // StateTreeNode
+    //
+
+    function StateTreeNode(state) {
+        this._children = [];
+        this._state = state;
+    }
+
+    StateTreeNode.prototype.hasChildMatchingKeySequence = function(keySequence) {
+        return this.getChildIndexMatchingKeySequence(keySequence) !== -1;
+    };
+
+    StateTreeNode.prototype.getChildIndexMatchingKeySequence = function(keySequence) {
+        var matchingIndex = -1;
+
+        this._children.forEach(function(child, index) {
+            if (child.getState().doesMatchKeySequence(keySequence)) {
+                matchingIndex = index;
+            }
+        });
+
+        return matchingIndex;
+    };
+
+    StateTreeNode.prototype.getChildMatchingKeySequence = function(keySequence) {
+        return this._children[this.getChildIndexMatchingKeySequence(keySequence)];
+    };
+
+    StateTreeNode.prototype.addChild = function(state) {
+        this._children.push(new StateTreeNode(state));
+    };
+
+    StateTreeNode.prototype.getChildren = function() {
+        return this._children;
+    };
+
+    StateTreeNode.prototype.getState = function() {
+        return this._state;
+    };
+
+
+    //
+    // State
+    //
+
+    function State(keyCodes) {
+        this._keyCodes = keyCodes;
+        this._callback = null;
+    }
+
+    State.prototype.doesMatchKeySequence = function(keySequence) {
+        return this._keyCodes.every(function(keyCode, index) {
+            return keySequence.indexOf(keyCode) === index;
+        });
+    };
+
+    State.prototype.setCallback = function(callback) {
+        this._callback = callback;
+    };
+
+    State.prototype.executeCallback = function() {
+        this._callback.call(null);
+    };
+
+    State.prototype.hasCallback = function() {
+        return this._callback !== null
+    };
+
+    //
+    // Decree JS
+    //
+
     var keyCodeMap = {
         "space": 32,
         "enter": 13,
@@ -59,10 +154,9 @@
 
     var matchingDecreeIndexPath = [];
 
-    var shouldListenForKeys = true;
     var currentInputKeys = [];
 
-    var decreeTree = [];
+    var decreeTree = new StateTree();
 
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
@@ -71,7 +165,6 @@
         currentInputKeys.push(keyEvent.keyCode);
 
         allowKeySequenceToEndIfNoKeyPressWithinTimeThreshold();
-        cancelEndCurrentDecree = setTimeout(listenForNextDecree, timeThreshold);
     }
 
     function allowKeySequenceToEndIfNoKeyPressWithinTimeThreshold() {
@@ -80,83 +173,32 @@
             clearTimeout(cancelEndCurrentDecree);
         }
         timeOfLastPress = currentTime;
+
+        cancelEndCurrentDecree = setTimeout(listenForNextDecree, timeThreshold);
     }
 
     function onKeyUp() {
-        var stateList = getPotentiallyMatchingStates();
+        var lastMatchingStateTreeNode = getLastMatchingStateTreeNode();
 
-        if (hasMatchingState(stateList, currentInputKeys) && shouldListenForKeys) {
-            matchingDecreeIndexPath.push(getMatchingStateIndex(stateList, currentInputKeys));
+        if (lastMatchingStateTreeNode.hasChildMatchingKeySequence(currentInputKeys)) {
+            matchingDecreeIndexPath.push(lastMatchingStateTreeNode.getChildIndexMatchingKeySequence(currentInputKeys));
 
-            if (getLastMatchingState().hasOwnProperty('callback')) {
-                executeDecreeCallback();
+            if (getLastMatchingStateTreeNode().getState().hasCallback()) {
+                getLastMatchingStateTreeNode().getState().executeCallback();
                 listenForNextDecree();
             }
-        } else {
-            shouldListenForKeys = false;
         }
 
         currentInputKeys = [];
     }
 
-    function getPotentiallyMatchingStates() {
-        if (matchingDecreeIndexPath.length > 0) {
-            return getLastMatchingState().children;
-        } else {
-            return decreeTree;
-        }
-    }
-
-    function hasMatchingState(stateList, keySequence) {
-        return getMatchingStateIndex(stateList, keySequence) !== null;
-    }
-
-    function getMatchingStateIndex(stateList, keySequence) {
-        for (var i = 0; i < stateList.length; i++) {
-            if (doesStateMatchKeySequence(stateList[i], keySequence)) {
-                return i;
-            }
-        }
-
-        return null;
-    }
-
-    function doesStateMatchKeySequence(state, keySequence) {
-        return state.keyCodes.every(function(keyCode, index) {
-            return keySequence.indexOf(keyCode) === index;
-        });
-    }
-
-    function getLastMatchingState() {
-        return getStateAtIndexPath(matchingDecreeIndexPath);
-    }
-
-    function getStateAtIndexPath(indexPath) {
-        var state = decreeTree[indexPath[0]];
-        for (var i = 1; i < indexPath.length; i++) {
-            state = state.children[indexPath[i]];
-        }
-        return state;
-    }
-
-    function executeDecreeCallback() {
-        var stateToExecute = getLastMatchingState();
-
-        if (stateToExecute.hasOwnProperty('callback')) {
-            stateToExecute.callback.call(null);
-        }
+    function getLastMatchingStateTreeNode() {
+        return decreeTree.getStateTreeNodeAtIndexPath(matchingDecreeIndexPath);
     }
 
     function listenForNextDecree() {
         matchingDecreeIndexPath = [];
-        shouldListenForKeys = true;
     }
-
-    window.decree = {
-        when: when,
-        config: decreeConfig
-    };
-
 
     function when(key) {
         var newDecreeStateKeySequence = [];
@@ -171,9 +213,14 @@
         };
 
         function then(key) {
-            addStateToTree();
+            if (decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).hasChildMatchingKeySequence(newDecreeStateKeySequence)) {
+                newDecreeIndexPath.push(decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).getChildIndexMatchingKeySequence(newDecreeStateKeySequence))
+            } else {
+                decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).addChild(new State(newDecreeStateKeySequence));
+                newDecreeIndexPath.push(decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).getChildren().length - 1);
+            }
 
-            newDecreeStateKeySequence.push(keyCodeMap[key]);
+            newDecreeStateKeySequence = [keyCodeMap[key]];
 
             return {
                 then: then,
@@ -193,36 +240,27 @@
         }
 
         function perform(callback) {
-            addStateToTree();
-
-            getStateAtIndexPath(newDecreeIndexPath).callback = callback;
-        }
-
-        function addStateToTree() {
-            var stateList;
-            if (newDecreeIndexPath.length === 0) {
-                stateList = decreeTree;
+            if (decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).hasChildMatchingKeySequence(newDecreeStateKeySequence)) {
+                decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).getChildMatchingKeySequence(newDecreeStateKeySequence).getState().setCallback(callback);
             } else {
-                stateList = getStateAtIndexPath(newDecreeIndexPath).children;
-            }
+                var newState = new State(newDecreeStateKeySequence);
+                newState.setCallback(callback);
 
-            if (hasMatchingState(stateList, newDecreeStateKeySequence)) {
-                newDecreeIndexPath.push(getMatchingStateIndex(stateList, newDecreeStateKeySequence));
-            } else {
-                stateList.push({
-                    keyCodes: newDecreeStateKeySequence,
-                    children: []
-                });
-                newDecreeIndexPath.push(stateList.length - 1);
+                decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).addChild(newState);
             }
-
-            newDecreeStateKeySequence = [];
         }
     }
 
-    function decreeConfig(config) {
-        if (config.hasOwnProperty('timeThreshold')) {
-            timeThreshold = config.timeThreshold;
+    function config(options) {
+        if (options.hasOwnProperty('timeThreshold')) {
+            timeThreshold = options.timeThreshold;
         }
     }
+
+    window.decree = {
+        when: when,
+        config: config
+    };
+
+
 })(window);
