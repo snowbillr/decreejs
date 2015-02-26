@@ -98,6 +98,13 @@ decree.when('a').withModifier('b').perform(function() {
 });
 ```
 
+### A single key with two modifiers
+```
+decree.when('a').withModifier('b').withModifier('c').perform(function() {
+    console.log('"b" and "c" were both pressed and held (in any order), then "a" was pressed and released.');
+});
+```
+
 ### A two key sequence, both with modifiers
 ```
 decree.when('q').withModifier('a').then('w').withModifier('s').perform(function() {
@@ -115,20 +122,6 @@ object. The list of configurable properties, along with their defaults, is shown
                             //this property is in milliseconds
  });
  ```
-
-## Questions
-
-### What happens if I register two modifiers on a key?
-Currently, a modifier registers itself as the first key required to be pressed for the state it is attached to. So if
- I execute `decree.when('c').withModifier('b').withModifier('a')`, I'll need to *press and hold* "a", then *press and
- hold*
- "b", and then *press and release* "c", then *release* "a" and "b". Decree sees the state start its definition with 
- "c", then sees that we are adding a modifier of "b" to that, so it will put the modifier key in front of the main 
- key for the state, which looks like `["b", "c"]`. Then, it sees we're adding a second modifier, so it will put the 
- second modifier key in front of the key sequence, which will look like `["a", "b", "c"]`.
- 
- I'm planning on adding in the functionality to be able to press the modifier keys in any order in a future release.
- 
 
 ## List of Supported Keys
 These are the strings that the `decree.when`, `then`, and `withModifier` methods can take as a parameter.
