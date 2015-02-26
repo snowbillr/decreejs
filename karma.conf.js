@@ -10,6 +10,9 @@ module.exports = function(config) {
         // list of files / patterns to load in the browser
         files: [
             'test/override.js',
+            'src/state.js',
+            'src/state-tree-node.js',
+            'src/state-tree.js',
             'src/decree.js',
             'test/spec/*.js'
         ],
