@@ -126,6 +126,7 @@ function when(key) {
         }
 
         newDecreeStateKey = keyCodeMap[key];
+        newDecreeStateModifierKeys = [];
 
         return {
             then: then,
