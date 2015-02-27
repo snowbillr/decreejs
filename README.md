@@ -1,6 +1,6 @@
 # Decree JS
 
-Decree JS provides allows you to execute a function when a specified key sequence is pressed. To register
+Decree JS allows you to execute a function when a specified key sequence is pressed. To register
 a key sequence with Decree JS, you use the `decree.when` method.
 
 The `decree.when` method takes in one argument, which is a string consisting of one key. The argument can be almost any
@@ -27,8 +27,7 @@ you execute `decree.when('a').then('b')`, you need to *press and release* the `a
 
 The `withModifier` method attaches a modifier key to the previously defined key. A modifier key must be pressed 
 **before** the key it is attached to. So if you execute `decree.when('a').withModifier('b')`, you need to *press and
-hold* the `b` key, and then *press and release* the `a` key. Technically you could release either key after the `a` key is
-pressed. If the `then` method is called after the `withModifier` method, it starts a new sequential state that 
+hold* the `b` key, and then *press and release* the `a` key. You'll also need to release the modifier key before the next part of the key sequence, if one exists. You can release the modifier key or the main key in any order. If the `then` method is called after the `withModifier` method, it starts a new sequential state that 
 doesn't expect the previous modifier key to be held down.
 
 
@@ -42,7 +41,7 @@ doesn't expect the previous modifier key to be held down.
 |    key    | string |
 
 #### Returns
-An object containing the methods `then`, `withModifier`, and `decree`.
+An object containing the methods `then`, `withModifier`, and `perform`.
 
 ### `then`
 
@@ -52,7 +51,7 @@ An object containing the methods `then`, `withModifier`, and `decree`.
 |    key    | string |
 
 #### Returns
-An object containing the methods `then`, `withModifier`, and `decree`.
+An object containing the methods `then`, `withModifier`, and `perform`.
 
 ### `withModifier`
 
@@ -62,7 +61,7 @@ An object containing the methods `then`, `withModifier`, and `decree`.
 |    key    | string |
 
 #### Returns
-An object containing the methods `then`, `withModifier`, and `decree`.
+An object containing the methods `then`, `withModifier`, and `perform`.
 
 ### `perform`
 
