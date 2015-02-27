@@ -7,6 +7,33 @@ describe('Decree JS', function() {
         }, 600);
     });
 
+    describe('deregistration', function() {
+
+        it('deregisters all registered key sequences', function() {
+            var wasFirstCallbackCalled = false;
+            var wasSecondCallbackCalled = false;
+
+            decree.when('a').perform(function() {
+                wasFirstCallbackCalled = true;
+            });
+
+            decree.when('b').perform(function() {
+                wasSecondCallbackCalled = true;
+            });
+
+            decree.deregisterAll();
+
+            sendEvent('keydown', 65);
+            sendEvent('keyup', 65);
+
+            sendEvent('keydown', 66);
+            sendEvent('keyup', 66);
+
+            expect(wasFirstCallbackCalled).toBe(false);
+            expect(wasSecondCallbackCalled).toBe(false);
+        });
+    });
+
     describe('listening for sequential key presses', function() {
         it('of length 1', function() {
             var wasCallbackCalled = false;
