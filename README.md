@@ -1,5 +1,4 @@
 # Decree JS
-A fluent API for responding to keyboard input.
 
 Decree JS provides allows you to execute a function when a specified key sequence is pressed. To register
 a key sequence with Decree JS, you use the `decree.when` method.
