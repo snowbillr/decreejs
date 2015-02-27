@@ -163,7 +163,12 @@ function config(options) {
     }
 }
 
+function deregisterAll() {
+    decreeTree.clear();
+}
+
 window.decree = {
     when: when,
-    config: config
+    config: config,
+    deregisterAll: deregisterAll
 };
