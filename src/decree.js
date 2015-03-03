@@ -154,10 +154,15 @@ function when(key) {
         }
 
         var callbackIndexPath = newDecreeIndexPath.slice();
+        var callbackStateIdPath = [];
+        for (var i = 0; i < callbackIndexPath.length; i++) {
+            var subIndexPath = callbackIndexPath.slice(0, i);
+            callbackStateIdPath.push(decreeTree.getStateTreeNodeAtIndexPath(subIndexPath).getState().getId());
+        }
 
         return function() {
             decreeTree.getStateTreeNodeAtIndexPath(callbackIndexPath).getState().removeCallback();
-            decreeTree.prune();
+            decreeTree.pruneBranch(callbackStateIdPath);
         }
     }
 }
