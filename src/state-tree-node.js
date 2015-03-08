@@ -45,10 +45,6 @@ StateTreeNode.prototype.getChildIndexMatchingStateKeys = function(key, modifierK
 
 // state id matching
 
-StateTreeNode.prototype.hasChildMatchingStateId = function(stateId) {
-    return this.getChildIndexMatchingStateId(stateId) !== -1
-};
-
 StateTreeNode.prototype.getChildMatchingStateId = function(stateId) {
     return this._children[this.getChildIndexMatchingStateId(stateId)];
 };
