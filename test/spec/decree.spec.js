@@ -286,4 +286,25 @@ describe('Decree JS', function() {
 
         });
     });
+
+    describe('on a key being held down (multiple keydown events)', function() {
+        beforeEach(function() {
+            decree.deregisterAll();
+        });
+
+        it('ignores that the key was held down and counts it as just one key press', function() {
+            var wasCallbackCalled = false;
+
+            decree.when('a').then('b').perform(function() {
+                wasCallbackCalled = true;
+            });
+
+            sendEvent('keydown', 65);
+            sendEvent('keydown', 65);
+            sendEvent('keydown', 65);
+            sendEvent('keyup', 65);
+            sendEvent('keydown', 66);
+            sendEvent('keyup', 66);
+        });
+    });
 });
