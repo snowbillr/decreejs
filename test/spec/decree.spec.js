@@ -247,5 +247,43 @@ describe('Decree JS', function() {
 
             expect(wasCallbackCalled).toBe(true);
         });
+
+        it('can remove deregister multiple callbacks', function(done) {
+            var wasCallbackCalled1 = false;
+            var wasCallbackCalled2 = false;
+
+            var deregistrationFn1 = decree.when('a').then('b').then('c').perform(function() {
+                wasCallbackCalled1 = true;
+            });
+
+            var deregistrationFn2 = decree.when('a').then('b').then('d').perform(function() {
+                wasCallbackCalled2 = true;
+            });
+
+            deregistrationFn1();
+            deregistrationFn2();
+
+            sendEvent('keydown', 65);
+            sendEvent('keyup', 65);
+            sendEvent('keydown', 66);
+            sendEvent('keyup', 66);
+            sendEvent('keydown', 68);
+            sendEvent('keyup', 68);
+
+            setTimeout(function() {
+                sendEvent('keydown', 65);
+                sendEvent('keyup', 65);
+                sendEvent('keydown', 66);
+                sendEvent('keyup', 66);
+                sendEvent('keydown', 67);
+                sendEvent('keyup', 67);
+
+                expect(wasCallbackCalled1).toBe(false);
+                expect(wasCallbackCalled2).toBe(false);
+
+                done();
+            }, 600);
+
+        });
     });
 });
