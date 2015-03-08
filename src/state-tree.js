@@ -17,8 +17,12 @@ StateTree.prototype.getStateTreeNodeAtIndexPath = function(indexPath) {
 
 StateTree.prototype.getStateTreeNodeAtIdPath = function(idPath) {
 
-}
+};
 
 StateTree.prototype.pruneBranch = function(stateIdPath) {
 
+};
+
+StateTree.prototype.clear = function() {
+    this._rootNode = new StateTreeNode();
 };

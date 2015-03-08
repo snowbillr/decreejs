@@ -1,7 +1,6 @@
 # Decree JS
-A fluent API for responding to keyboard input.
 
-Decree JS provides allows you to execute a function when a specified key sequence is pressed. To register
+Decree JS allows you to execute a function when a specified key sequence is pressed. To register
 a key sequence with Decree JS, you use the `decree.when` method.
 
 The `decree.when` method takes in one argument, which is a string consisting of one key. The argument can be almost any
@@ -28,8 +27,7 @@ you execute `decree.when('a').then('b')`, you need to *press and release* the `a
 
 The `withModifier` method attaches a modifier key to the previously defined key. A modifier key must be pressed 
 **before** the key it is attached to. So if you execute `decree.when('a').withModifier('b')`, you need to *press and
-hold* the `b` key, and then *press and release* the `a` key. Technically you could release either key after the `a` key is
-pressed. If the `then` method is called after the `withModifier` method, it starts a new sequential state that 
+hold* the `b` key, and then *press and release* the `a` key. You'll also need to release the modifier key before the next part of the key sequence, if one exists. You can release the modifier key or the main key in any order. If the `then` method is called after the `withModifier` method, it starts a new sequential state that 
 doesn't expect the previous modifier key to be held down.
 
 
@@ -43,7 +41,7 @@ doesn't expect the previous modifier key to be held down.
 |    key    | string |
 
 #### Returns
-An object containing the methods `then`, `withModifier`, and `decree`.
+An object containing the methods `then`, `withModifier`, and `perform`.
 
 ### `then`
 
@@ -53,7 +51,7 @@ An object containing the methods `then`, `withModifier`, and `decree`.
 |    key    | string |
 
 #### Returns
-An object containing the methods `then`, `withModifier`, and `decree`.
+An object containing the methods `then`, `withModifier`, and `perform`.
 
 ### `withModifier`
 
@@ -63,7 +61,7 @@ An object containing the methods `then`, `withModifier`, and `decree`.
 |    key    | string |
 
 #### Returns
-An object containing the methods `then`, `withModifier`, and `decree`.
+An object containing the methods `then`, `withModifier`, and `perform`.
 
 ### `perform`
 
@@ -98,6 +96,13 @@ decree.when('a').withModifier('b').perform(function() {
 });
 ```
 
+### A single key with two modifiers
+```
+decree.when('a').withModifier('b').withModifier('c').perform(function() {
+    console.log('"b" and "c" were both pressed and held (in any order), then "a" was pressed and released.');
+});
+```
+
 ### A two key sequence, both with modifiers
 ```
 decree.when('q').withModifier('a').then('w').withModifier('s').perform(function() {
@@ -115,20 +120,6 @@ object. The list of configurable properties, along with their defaults, is shown
                             //this property is in milliseconds
  });
  ```
-
-## Questions
-
-### What happens if I register two modifiers on a key?
-Currently, a modifier registers itself as the first key required to be pressed for the state it is attached to. So if
- I execute `decree.when('c').withModifier('b').withModifier('a')`, I'll need to *press and hold* "a", then *press and
- hold*
- "b", and then *press and release* "c", then *release* "a" and "b". Decree sees the state start its definition with 
- "c", then sees that we are adding a modifier of "b" to that, so it will put the modifier key in front of the main 
- key for the state, which looks like `["b", "c"]`. Then, it sees we're adding a second modifier, so it will put the 
- second modifier key in front of the key sequence, which will look like `["a", "b", "c"]`.
- 
- I'm planning on adding in the functionality to be able to press the modifier keys in any order in a future release.
- 
 
 ## List of Supported Keys
 These are the strings that the `decree.when`, `then`, and `withModifier` methods can take as a parameter.
