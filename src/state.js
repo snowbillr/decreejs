@@ -1,6 +1,7 @@
 function State(keyCodes) {
     this._keyCodes = keyCodes;
     this._callback = null;
+    this._id = Math.floor(Math.random() * 1000000);
 }
 
 State.prototype.doesMatchKeySequence = function(keySequence) {
