@@ -36,12 +36,12 @@ StateTree.prototype.pruneBranch = function(stateIdPath) {
     //else
     //stop the prune function
 
-    for (var i = stateIdPath.length - 1; i >= 0; i--) {
+    for (var i = stateIdPath.length; i > 0; i--) {
+        var stateIdPathToCheck = stateIdPath.slice(0, i);
 
-        var stateTreeNode = this.getStateTreeNodeAtIdPath(stateIdPath.slice(0, i + 1));
+        var stateTreeNode = this.getStateTreeNodeAtIdPath(stateIdPathToCheck);
         if (stateTreeNode.getChildren().length === 0 && !stateTreeNode.getState().hasCallback()) {
-            //remove from tree
-            this.removeNodeAtStateIdPath(stateIdPath.slice(0, i + 1));
+            this.removeNodeAtStateIdPath(stateIdPathToCheck);
         } else {
             return;
         }
