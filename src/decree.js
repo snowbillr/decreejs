@@ -148,17 +148,19 @@ function when(key) {
     function perform(callback) {
         if (decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).hasChildMatchingStateKeys(newDecreeStateKey, newDecreeStateModifierKeys)) {
             decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).getChildMatchingStateKeys(newDecreeStateKey, newDecreeStateModifierKeys).getState().setCallback(callback);
+            newDecreeIndexPath.push(decreeTree.getStateTreeNodeAtIdPath(newDecreeIndexPath).getChildIndexMatchingStateKeys(newDecreeStateKey, newDecreeStateModifierKeys));
         } else {
             var newState = new State(newDecreeStateKey, newDecreeStateModifierKeys);
             newState.setCallback(callback);
 
             decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).addChild(newState);
+            newDecreeIndexPath.push(decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath).getChildren().length - 1);
         }
 
         var callbackIndexPath = newDecreeIndexPath.slice();
         var callbackStateIdPath = [];
         for (var i = 0; i < callbackIndexPath.length; i++) {
-            var subIndexPath = callbackIndexPath.slice(0, i);
+            var subIndexPath = callbackIndexPath.slice(0, i + 1);
             callbackStateIdPath.push(decreeTree.getStateTreeNodeAtIndexPath(subIndexPath).getState().getId());
         }
 

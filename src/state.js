@@ -43,4 +43,8 @@ State.prototype.hasCallback = function() {
 
 State.prototype.removeCallback = function() {
     this._callback = null;
-}
+};
+
+State.prototype.getId = function() {
+    return this._id;
+};

@@ -181,4 +181,71 @@ describe('Decree JS', function() {
             expect(wasCallbackCalled).toBe(true);
         });
     });
+
+    describe('deregistering a callback', function() {
+        beforeEach(function() {
+            decree.deregisterAll();
+        });
+
+        it('won\'t call the callback for a deregistered key sequence', function() {
+            var wasCallbackCalled = false;
+
+            var deregistrationFn = decree.when('a').then('b').perform(function() {
+                wasCallbackCalled = true;
+            });
+
+            deregistrationFn();
+
+            sendEvent('keydown', 65);
+            sendEvent('keyup', 65);
+            sendEvent('keydown', 66);
+            sendEvent('keyup', 66);
+
+            expect(wasCallbackCalled).toBe(false);
+        });
+
+        it('will call a callback down the state tree that was previously blocked', function() {
+            var wasCallbackCalled = false;
+
+            var deregistrationFn = decree.when('a').then('b').perform(function() {
+                //do nothing
+            });
+
+            decree.when('a').then('b').then('c').perform(function() {
+                wasCallbackCalled = true;
+            });
+
+            deregistrationFn();
+
+            sendEvent('keydown', 65);
+            sendEvent('keyup', 65);
+            sendEvent('keydown', 66);
+            sendEvent('keyup', 66);
+            sendEvent('keydown', 67);
+            sendEvent('keyup', 67);
+        });
+
+        it('won\'t prune the parent if a sibling is removed', function() {
+            var wasCallbackCalled = false;
+
+            var deregistrationFn = decree.when('a').then('b').then('c').perform(function() {
+                //do nothing
+            });
+
+            decree.when('a').then('b').then('d').perform(function() {
+                wasCallbackCalled = true;
+            });
+
+            deregistrationFn();
+
+            sendEvent('keydown', 65);
+            sendEvent('keyup', 65);
+            sendEvent('keydown', 66);
+            sendEvent('keyup', 66);
+            sendEvent('keydown', 68);
+            sendEvent('keyup', 68);
+
+            expect(wasCallbackCalled).toBe(true);
+        });
+    });
 });
