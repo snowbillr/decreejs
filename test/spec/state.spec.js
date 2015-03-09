@@ -1,4 +1,4 @@
-ddescribe('A State on the decree tree', function() {
+describe('A State on the decree tree', function() {
     it('is given a random id when created', function() {
         var state = new State(65, []);
         expect(state.getId()).toBeDefined();
