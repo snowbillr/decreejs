@@ -311,4 +311,47 @@ describe('Decree JS', function() {
             sendEvent('keyup', 66);
         });
     });
+
+    describe('can be configured', function() {
+        it('with a custom time threshold', function(done) {
+            var wasCallbackCalled = false;
+
+            decree.config({
+                timeThreshold: 50
+            });
+
+            decree.when('a').then('b').perform(function() {
+                wasCallbackCalled = true;
+            });
+
+            sendEvent('keydown', 65);
+            sendEvent('keyup', 65);
+
+            setTimeout(function() {
+                sendEvent('keydown', 66);
+                sendEvent('keyup', 66);
+
+                expect(wasCallbackCalled).toBe(false);
+
+                done();
+            }, 100);
+        });
+
+        it('isn\'t affected by a bad option', function() {
+            decree.config({
+                badOption: 'booyah'
+            });
+
+            decree.when('a').then('b').perform(function() {
+                wasCallbackCalled = true;
+            });
+
+            sendEvent('keydown', 65);
+            sendEvent('keyup', 65);
+            sendEvent('keydown', 66);
+            sendEvent('keyup', 66);
+
+            expect(wasCallbackCalled).toBe(true);
+        });
+    });
 });

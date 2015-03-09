@@ -52,7 +52,10 @@ var keyCodeMap = {
     "z": 90
 };
 
-var timeThreshold = 500; //milliseconds
+var options = {
+    timeThreshold: 500 //milliseconds
+};
+
 var timeOfLastPress;
 var cancelEndCurrentDecree;
 
@@ -73,12 +76,12 @@ function onKeyDown(keyEvent) {
 
 function allowKeySequenceToEndIfNoKeyPressWithinTimeThreshold() {
     var currentTime = (new Date()).getTime();
-    if (currentTime - timeOfLastPress < timeThreshold) {
+    if (currentTime - timeOfLastPress < options.timeThreshold) {
         clearTimeout(cancelEndCurrentDecree);
     }
     timeOfLastPress = currentTime;
 
-    cancelEndCurrentDecree = setTimeout(listenForNextDecree, timeThreshold);
+    cancelEndCurrentDecree = setTimeout(listenForNextDecree, options.timeThreshold);
 }
 
 function onKeyUp() {
@@ -175,10 +178,12 @@ function when(key) {
     }
 }
 
-function config(options) {
-    if (options.hasOwnProperty('timeThreshold')) {
-        timeThreshold = options.timeThreshold;
-    }
+function config(customOptions) {
+    for (var option in options) {
+        if (customOptions.hasOwnProperty(option)) {
+            options[option] = customOptions[option];
+        }
+    };
 }
 
 function deregisterAll() {
