@@ -1,4 +1,4 @@
-ddescribe('A StateTreeNode', function() {
+describe('A StateTreeNode', function() {
 
     describe('manipulating its children', function() {
         it('can be initialized with a state', function() {

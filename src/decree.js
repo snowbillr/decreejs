@@ -169,7 +169,7 @@ function when(key) {
         }
 
         return function() {
-            decreeTree.getStateTreeNodeAtIndexPath(callbackIndexPath).getState().removeCallback();
+            decreeTree.getStateTreeNodeAtStateIdPath(callbackStateIdPath).getState().removeCallback();
             decreeTree.pruneBranch(callbackStateIdPath);
         }
     }

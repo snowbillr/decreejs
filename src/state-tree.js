@@ -15,7 +15,7 @@ StateTree.prototype.getStateTreeNodeAtIndexPath = function(indexPath) {
     }
 };
 
-StateTree.prototype.getStateTreeNodeAtIdPath = function(idPath) {
+StateTree.prototype.getStateTreeNodeAtStateIdPath = function(idPath) {
     if (idPath.length === 0) {
         return this._rootNode;
     } else {
@@ -29,17 +29,10 @@ StateTree.prototype.getStateTreeNodeAtIdPath = function(idPath) {
 };
 
 StateTree.prototype.pruneBranch = function(stateIdPath) {
-    //start at the last state in the stateIdPath
-    //if it has no children AND no callback
-    //remove it from the tree
-    //continue to the next state (previous state in the stateIdPath)
-    //else
-    //stop the prune function
-
     for (var i = stateIdPath.length; i > 0; i--) {
         var stateIdPathToCheck = stateIdPath.slice(0, i);
 
-        var stateTreeNode = this.getStateTreeNodeAtIdPath(stateIdPathToCheck);
+        var stateTreeNode = this.getStateTreeNodeAtStateIdPath(stateIdPathToCheck);
         if (stateTreeNode.getChildren().length === 0 && !stateTreeNode.getState().hasCallback()) {
             this.removeNodeAtStateIdPath(stateIdPathToCheck);
         } else {
@@ -49,7 +42,7 @@ StateTree.prototype.pruneBranch = function(stateIdPath) {
 };
 
 StateTree.prototype.removeNodeAtStateIdPath = function(stateIdPath) {
-    var parentStateTreeNode = this.getStateTreeNodeAtIdPath(stateIdPath.slice(0, stateIdPath.length));
+    var parentStateTreeNode = this.getStateTreeNodeAtStateIdPath(stateIdPath.slice(0, stateIdPath.length - 1));
     var stateIdToRemove = stateIdPath[stateIdPath.length - 1];
 
     parentStateTreeNode.removeChildAtIndex(parentStateTreeNode.getChildIndexMatchingStateId(stateIdToRemove));
