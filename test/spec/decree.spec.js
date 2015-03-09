@@ -2,9 +2,13 @@
 
 describe('Decree JS', function() {
     beforeEach(function(done) {
+        decree.config({
+            timeThreshold: 50
+        });
+
         setTimeout(function() {
             done();
-        }, 600);
+        }, 75);
     });
 
     describe('deregistration', function() {
@@ -282,7 +286,7 @@ describe('Decree JS', function() {
                 expect(wasCallbackCalled2).toBe(false);
 
                 done();
-            }, 600);
+            }, 75);
 
         });
     });

@@ -14,7 +14,7 @@ module.exports = function(config) {
             'src/state-tree-node.js',
             'src/state-tree.js',
             'src/decree.js',
-            'test/spec/*.js'
+            'test/spec/*.spec.js'
         ],
 
         // list of files to exclude
