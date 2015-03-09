@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for src/state-tree.js</title>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" href="../prettify.css">
+
+    <link rel="stylesheet" href="../base.css">
+    <style type='text/css'>
+        div.coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class="header high">
+    <h1>Code coverage report for <span class="entity">src/state-tree.js</span></h1>
+    <h2>
+        
+        Statements: <span class="metric">100% <small>(29 / 29)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        
+        
+        Branches: <span class="metric">100% <small>(8 / 8)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        
+        
+        Functions: <span class="metric">100% <small>(6 / 6)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        
+        
+        Lines: <span class="metric">100% <small>(29 / 29)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        
+        Ignored: <span class="metric"><span class="ignore-none">none</span></span> &nbsp;&nbsp;&nbsp;&nbsp;
+    </h2>
+    <div class="path"><a href="../index.html">All files</a> &#187; <a href="index.html">src/</a> &#187; state-tree.js</div>
+</div>
+<div class="body">
+<pre><table class="coverage">
+<tr><td class="line-count">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53</td><td class="line-coverage"><span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">12</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">154</span>
+<span class="cline-any cline-yes">65</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">89</span>
+<span class="cline-any cline-yes">89</span>
+<span class="cline-any cline-yes">52</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">89</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">41</span>
+<span class="cline-any cline-yes">5</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">36</span>
+<span class="cline-any cline-yes">36</span>
+<span class="cline-any cline-yes">25</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">36</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">10</span>
+<span class="cline-any cline-yes">17</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17</span>
+<span class="cline-any cline-yes">17</span>
+<span class="cline-any cline-yes">11</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">12</span>
+<span class="cline-any cline-yes">12</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">7</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">function StateTree() {
+    this._rootNode = new StateTreeNode();
+}
+&nbsp;
+StateTree.prototype.getStateTreeNodeAtIndexPath = function(indexPath) {
+    if (indexPath.length === 0) {
+        return this._rootNode;
+    } else {
+        var stateTreeNode = this._rootNode.getChildren()[indexPath[0]];
+        for (var i = 1; i &lt; indexPath.length; i++) {
+            stateTreeNode = stateTreeNode.getChildren()[indexPath[i]];
+        }
+&nbsp;
+        return stateTreeNode;
+    }
+};
+&nbsp;
+StateTree.prototype.getStateTreeNodeAtStateIdPath = function(idPath) {
+    if (idPath.length === 0) {
+        return this._rootNode;
+    } else {
+        var stateTreeNode = this._rootNode.getChildMatchingStateId(idPath[0]);
+        for (var i = 1; i &lt; idPath.length; i++) {
+            stateTreeNode = stateTreeNode.getChildMatchingStateId(idPath[i]);
+        }
+&nbsp;
+        return stateTreeNode;
+    }
+};
+&nbsp;
+StateTree.prototype.pruneBranch = function(stateIdPath) {
+    for (var i = stateIdPath.length; i &gt; 0; i--) {
+        var stateIdPathToCheck = stateIdPath.slice(0, i);
+&nbsp;
+        var stateTreeNode = this.getStateTreeNodeAtStateIdPath(stateIdPathToCheck);
+        if (stateTreeNode.getChildren().length === 0 &amp;&amp; !stateTreeNode.getState().hasCallback()) {
+            this.removeNodeAtStateIdPath(stateIdPathToCheck);
+        } else {
+            return;
+        }
+    }
+};
+&nbsp;
+StateTree.prototype.removeNodeAtStateIdPath = function(stateIdPath) {
+    var parentStateTreeNode = this.getStateTreeNodeAtStateIdPath(stateIdPath.slice(0, stateIdPath.length - 1));
+    var stateIdToRemove = stateIdPath[stateIdPath.length - 1];
+&nbsp;
+    parentStateTreeNode.removeChildAtIndex(parentStateTreeNode.getChildIndexMatchingStateId(stateIdToRemove));
+};
+&nbsp;
+StateTree.prototype.clear = function() {
+    this._rootNode = new StateTreeNode();
+};</pre></td></tr>
+</table></pre>
+
+</div>
+<div class="footer">
+    <div class="meta">Generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sun Mar 08 2015 22:14:50 GMT-0600 (MDT)</div>
+</div>
+
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+
+<script src="../sorter.js"></script>
+</body>
+</html>
