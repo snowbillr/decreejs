@@ -4,6 +4,33 @@ ddescribe('A State on the decree tree', function() {
         expect(state.getId()).toBeDefined();
     });
 
+    describe('matching other states', function() {
+
+        it('will match if the main keys are the same and there are no modifier keys', function() {
+            var state = new State(65, []);
+
+            expect(state.doesMatchStateKeys(65, [])).toBe(true);
+        });
+
+        it('will match if the main keys are the same and there are the same modifier keys', function() {
+            var state = new State(65, [66, 67]);
+
+            expect(state.doesMatchStateKeys(65, [66, 67])).toBe(true);
+        });
+
+        it('will not match if the main keys are the same but the modifier keys are different', function() {
+            var state = new State(65, [66, 67]);
+
+            expect(state.doesMatchStateKeys(65, [66, 68])).toBe(false);
+        });
+
+        it('will not match if the main keys are different but the modifier keys are the same', function() {
+            var state = new State(65, [66, 67]);
+
+            expect(state.doesMatchStateKeys(70, [66, 67])).toBe(false);
+        });
+    });
+
     describe('matching key sequences', function() {
 
         describe('with no modifier keys', function() {
