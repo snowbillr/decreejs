@@ -338,6 +338,8 @@ describe('Decree JS', function() {
         });
 
         it('isn\'t affected by a bad option', function() {
+            var wasCallbackCalled = false;
+
             decree.config({
                 badOption: 'booyah'
             });
