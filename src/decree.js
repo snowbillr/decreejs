@@ -61,6 +61,7 @@ var cancelEndCurrentDecree;
 
 var matchingDecreeIndexPath = [];
 
+var lastKeyEvent;
 var currentInputKeys = [];
 
 var decreeTree = new StateTree();
@@ -69,6 +70,13 @@ window.addEventListener('keydown', onKeyDown);
 window.addEventListener('keyup', onKeyUp);
 
 function onKeyDown(keyEvent) {
+    if (lastKeyEvent && lastKeyEvent.type === 'keydown' && lastKeyEvent.keyCode === keyEvent.keyCode) {
+        lastKeyEvent = keyEvent;
+        return;
+    }
+
+    lastKeyEvent = keyEvent;
+
     currentInputKeys.push(keyEvent.keyCode);
 
     allowKeySequenceToEndIfNoKeyPressWithinTimeThreshold();
@@ -84,7 +92,9 @@ function allowKeySequenceToEndIfNoKeyPressWithinTimeThreshold() {
     cancelEndCurrentDecree = setTimeout(listenForNextDecree, options.timeThreshold);
 }
 
-function onKeyUp() {
+function onKeyUp(keyEvent) {
+    lastKeyEvent = keyEvent;
+
     var lastMatchingStateTreeNode = getLastMatchingStateTreeNode();
 
     if (lastMatchingStateTreeNode.hasChildMatchingKeySequence(currentInputKeys)) {
@@ -96,7 +106,7 @@ function onKeyUp() {
         }
     }
 
-    currentInputKeys = [];
+    currentInputKeys.splice(currentInputKeys.indexOf(keyEvent.keyCode), 1);
 }
 
 function getLastMatchingStateTreeNode() {
@@ -183,7 +193,7 @@ function config(customOptions) {
         if (customOptions.hasOwnProperty(option)) {
             options[option] = customOptions[option];
         }
-    };
+    }
 }
 
 function deregisterAll() {

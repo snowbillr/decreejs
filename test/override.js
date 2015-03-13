@@ -6,6 +6,7 @@ window.addEventListener = function(event, callback) {
 
 window.sendEvent = function(event, keyCode) {
     eventListenerCallbacks[event]({
-        keyCode: keyCode
+        keyCode: keyCode,
+        type: event
     });
 };

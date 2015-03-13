@@ -186,6 +186,35 @@ describe('Decree JS', function() {
         });
     });
 
+    describe('executing two decrees back to back that have the same modifier key', function() {
+        beforeEach(function() {
+            decree.deregisterAll();
+        });
+
+        it('works without releasing the modifier key between decrees', function() {
+            var wasCallbackCalled1 = false;
+            var wasCallbackCalled2 = false;
+
+            decree.when('a').withModifier('shift').perform(function() {
+                wasCallbackCalled1 = true;
+            });
+
+            decree.when('b').withModifier('shift').perform(function() {
+                wasCallbackCalled2 = true;
+            });
+
+            sendEvent('keydown', 16);
+            sendEvent('keydown', 65);
+            sendEvent('keyup', 65);
+            sendEvent('keydown', 66);
+            sendEvent('keyup', 66);
+            sendEvent('keyup', 16);
+
+            expect(wasCallbackCalled1).toBe(true);
+            expect(wasCallbackCalled2).toBe(true);
+        });
+    });
+
     describe('deregistering a callback', function() {
         beforeEach(function() {
             decree.deregisterAll();
@@ -313,6 +342,10 @@ describe('Decree JS', function() {
     });
 
     describe('can be configured', function() {
+        beforeEach(function() {
+            decree.deregisterAll();
+        });
+
         it('with a custom time threshold', function(done) {
             var wasCallbackCalled = false;
 
