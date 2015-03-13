@@ -74,7 +74,6 @@ function onKeyDown(keyEvent) {
         lastKeyEvent = keyEvent;
         return;
     }
-
     lastKeyEvent = keyEvent;
 
     currentInputKeys.push(keyEvent.keyCode);
