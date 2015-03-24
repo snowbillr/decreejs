@@ -1,6 +1,17 @@
 {
   "name": "decree-js",
-  "private": true,
+  "version": "1.0.0",
+  "ignore": [
+    "Gruntfile.js",
+    "README.md",
+    "coverage",
+    "karma.conf.js",
+    "node_modules",
+    "package.json",
+    "src",
+    "tmp",
+    "test"
+  ],
   "dependencies": {
   }
 }
