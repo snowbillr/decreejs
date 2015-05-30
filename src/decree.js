@@ -117,11 +117,11 @@ function listenForNextDecree() {
 }
 
 function when(key) {
-    var newDecreeStateKey = '';
-    var newDecreeStateModifierKeys = [];
+    var newStateKey = '';
+    var newStateModifierKeys = [];
     var newDecreeIndexPath = [];
 
-    newDecreeStateKey = keyCodeMap[key];
+    newStateKey = keyCodeMap[key];
 
     return {
         then: then,
@@ -130,17 +130,10 @@ function when(key) {
     };
 
     function then(key) {
-        var lastNewState = decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath);
+        registerState();
 
-        if (lastNewState.hasChildMatchingStateKeys(newDecreeStateKey, newDecreeStateModifierKeys)) {
-            newDecreeIndexPath.push(lastNewState.getChildIndexMatchingStateKeys(newDecreeStateKey, newDecreeStateModifierKeys))
-        } else {
-            lastNewState.addChild(new State(newDecreeStateKey, newDecreeStateModifierKeys));
-            newDecreeIndexPath.push(lastNewState.getChildren().length - 1);
-        }
-
-        newDecreeStateKey = keyCodeMap[key];
-        newDecreeStateModifierKeys = [];
+        newStateKey = keyCodeMap[key];
+        newStateModifierKeys = [];
 
         return {
             then: then,
@@ -150,7 +143,7 @@ function when(key) {
     }
 
     function withModifier(key) {
-        newDecreeStateModifierKeys.push(keyCodeMap[key]);
+        newStateModifierKeys.push(keyCodeMap[key]);
 
         return {
             then: then,
@@ -160,18 +153,8 @@ function when(key) {
     }
 
     function perform(callback) {
-        var lastNewState = decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath);
-
-        if (lastNewState.hasChildMatchingStateKeys(newDecreeStateKey, newDecreeStateModifierKeys)) {
-            lastNewState.getChildMatchingStateKeys(newDecreeStateKey, newDecreeStateModifierKeys).getState().setCallback(callback);
-            newDecreeIndexPath.push(lastNewState.getChildIndexMatchingStateKeys(newDecreeStateKey, newDecreeStateModifierKeys));
-        } else {
-            var newState = new State(newDecreeStateKey, newDecreeStateModifierKeys);
-            newState.setCallback(callback);
-
-            lastNewState.addChild(newState);
-            newDecreeIndexPath.push(lastNewState.getChildren().length - 1);
-        }
+        var newState = registerState();
+        newState.setCallback(callback);
 
         var callbackIndexPath = newDecreeIndexPath.slice();
         var callbackStateIdPath = [];
@@ -184,6 +167,20 @@ function when(key) {
             decreeTree.getStateTreeNodeAtStateIdPath(callbackStateIdPath).getState().removeCallback();
             decreeTree.pruneBranch(callbackStateIdPath);
         }
+    }
+
+    function registerState() {
+        var lastNewState = decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath);
+        var newState = new State(newStateKey, newStateModifierKeys);
+
+        if (lastNewState.hasChildMatchingStateKeys(newStateKey, newStateModifierKeys)) {
+            newDecreeIndexPath.push(lastNewState.getChildIndexMatchingStateKeys(newStateKey, newStateModifierKeys))
+        } else {
+            lastNewState.addChild(newState);
+            newDecreeIndexPath.push(lastNewState.getChildren().length - 1);
+        }
+
+        return newState;
     }
 }
 
