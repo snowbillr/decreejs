@@ -119,7 +119,7 @@ function listenForNextDecree() {
 function when(key) {
     var newStateKey = '';
     var newStateModifierKeys = [];
-    var newDecreeIndexPath = [];
+    var newKeySequenceIndexPath = [];
 
     newStateKey = keyCodeMap[key];
 
@@ -156,7 +156,7 @@ function when(key) {
         var newState = registerState();
         newState.setCallback(callback);
 
-        var callbackIndexPath = newDecreeIndexPath.slice();
+        var callbackIndexPath = newKeySequenceIndexPath.slice();
         var callbackStateIdPath = [];
         for (var i = 0; i < callbackIndexPath.length; i++) {
             var subIndexPath = callbackIndexPath.slice(0, i + 1);
@@ -170,14 +170,14 @@ function when(key) {
     }
 
     function registerState() {
-        var lastNewState = decreeTree.getStateTreeNodeAtIndexPath(newDecreeIndexPath);
+        var lastNewState = decreeTree.getStateTreeNodeAtIndexPath(newKeySequenceIndexPath);
         var newState = new State(newStateKey, newStateModifierKeys);
 
         if (lastNewState.hasChildMatchingStateKeys(newStateKey, newStateModifierKeys)) {
-            newDecreeIndexPath.push(lastNewState.getChildIndexMatchingStateKeys(newStateKey, newStateModifierKeys))
+            newKeySequenceIndexPath.push(lastNewState.getChildIndexMatchingStateKeys(newStateKey, newStateModifierKeys))
         } else {
             lastNewState.addChild(newState);
-            newDecreeIndexPath.push(lastNewState.getChildren().length - 1);
+            newKeySequenceIndexPath.push(lastNewState.getChildren().length - 1);
         }
 
         return newState;
