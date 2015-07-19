@@ -126,6 +126,7 @@ function when(key) {
     return {
         then: then,
         withModifier: withModifier,
+        withModifiers: withModifiers,
         perform: perform
     };
 
@@ -138,16 +139,24 @@ function when(key) {
         return {
             then: then,
             withModifier: withModifier,
+            withModifiers: withModifiers,
             perform: perform
         };
     }
 
     function withModifier(key) {
-        newStateModifierKeys.push(keyCodeMap[key]);
+        return withModifiers(key);
+    }
+
+    function withModifiers() {
+        for (var i = 0; i < arguments.length; i++) {
+            newStateModifierKeys.push(keyCodeMap[arguments[i]]);
+        }
 
         return {
             then: then,
             withModifier: withModifier,
+            withModifiers: withModifiers,
             perform: perform
         };
     }

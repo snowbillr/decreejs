@@ -122,7 +122,7 @@ describe('Decree JS', function() {
 
         beforeEach(function() {
             wasCallbackCalled = false;
-            decree.when('a').withModifier('b').withModifier('c').perform(function() {
+            decree.when('a').withModifiers('b', 'c').perform(function() {
                 wasCallbackCalled = true;
             });
         });
