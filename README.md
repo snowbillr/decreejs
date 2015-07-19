@@ -114,7 +114,7 @@ decree.when('a').withModifier('b').perform(function() {
 
 ### A single key with two modifiers
 ```
-decree.when('a').withModifier('b').withModifier('c').perform(function() {
+decree.when('a').withModifiers('b', 'c').perform(function() {
     console.log('"b" and "c" were both pressed and held (in any order), then "a" was pressed and released.');
 });
 ```
