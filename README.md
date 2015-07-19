@@ -19,8 +19,8 @@ same three methods plus `withModifiers` returned by `decree.when`. These three m
 want to Decree JS to listen for.
  
 The `perform` method also takes a single argument, a function to be called when Decree JS notices that the
-key sequence you registered is pressed while the browser is in focus. This method has no return value, and when it is
- called, ends the key sequence you are registering.
+key sequence you registered is pressed while the browser is in focus. Calling this method ends the key sequence you are registering.
+It returns a function that can be called to deregister the just registered key sequence.
 
 The `then` method will register a **sequential** key press that comes after the key given to the previous method. So if 
 you execute `decree.when('a').then('b')`, you need to *press and release* the `a` key, and then *press and release* the
@@ -87,7 +87,7 @@ An object containing the methods `then`, `withModifier`, `withModifiers`, and `p
 | callback  | function |
 
 #### Returns
-Nothing.
+A deregistration function for the just registered key sequence.
 
 ## Examples
 
@@ -125,6 +125,14 @@ decree.when('q').withModifier('a').then('w').withModifier('s').perform(function(
     console.log('"a" was pressed and held, then "q" was pressed and released, then "a" was released". Then, "s" was 
     pressed and held, then "w" was pressed and released, then "s" was released.');
 });
+```
+
+### Deregistering a decree
+```
+var deregistrationFn = decree.when('x').then('y').perform(function() {
+    console.log('this will execute only up until the deregistration function is called');
+});
+deregistrationFn();
 ```
 
 ## Configuring Decree JS
