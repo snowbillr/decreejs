@@ -146,13 +146,6 @@ function when(key) {
 
     function withModifier(key) {
         return withModifiers(key);
-
-        //return {
-        //    then: then,
-        //    withModifier: withModifier,
-        //    withModifiers: withModifiers,
-        //    perform: perform
-        //};
     }
 
     function withModifiers() {
