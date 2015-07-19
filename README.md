@@ -11,10 +11,11 @@ To continue the key sequence definition, you have to chain off of the returned v
 are available to chain off of `decree.when`:
 - `then`
 - `withModifier`
+- `withModifiers`
 - `perform`
 
 The `decree.when`, `then`, and `withModifier` methods all take the same single argument, and all are chainable with the
-same three methods returned by `decree.when`. These three methods are how you define the sequence of key presses you
+same three methods plus `withModifiers` returned by `decree.when`. These three methods are how you define the sequence of key presses you
 want to Decree JS to listen for.
  
 The `perform` method also takes a single argument, a function to be called when Decree JS notices that the
@@ -30,6 +31,10 @@ The `withModifier` method attaches a modifier key to the previously defined key.
 hold* the `b` key, and then *press and release* the `a` key. You'll also need to release the modifier key before the next part of the key sequence, if one exists. You can release the modifier key or the main key in any order. If the `then` method is called after the `withModifier` method, it starts a new sequential state that 
 doesn't expect the previous modifier key to be held down.
 
+The `withModifiers` method is for when you have multiple modifiers for a single key sequence. It takes in the list of
+modifiers for the previously defined key as individual arguments to the function. It also acts a convenicence
+method that replaces the need for chaining multiple `withModifier` calls.
+
 
 ## API
 
@@ -41,7 +46,7 @@ doesn't expect the previous modifier key to be held down.
 |    key    | string |
 
 #### Returns
-An object containing the methods `then`, `withModifier`, and `perform`.
+An object containing the methods `then`, `withModifier`, `withModifiers`, and `perform`.
 
 ### `then`
 
@@ -51,7 +56,7 @@ An object containing the methods `then`, `withModifier`, and `perform`.
 |    key    | string |
 
 #### Returns
-An object containing the methods `then`, `withModifier`, and `perform`.
+An object containing the methods `then`, `withModifier`, `withModifiers`, and `perform`.
 
 ### `withModifier`
 
@@ -61,7 +66,18 @@ An object containing the methods `then`, `withModifier`, and `perform`.
 |    key    | string |
 
 #### Returns
-An object containing the methods `then`, `withModifier`, and `perform`.
+An object containing the methods `then`, `withModifier`, `withModifiers`, and `perform`.
+
+### `withModifiers`
+
+#### Parameters
+|   parameter    |  type  |
+|----------------|--------|
+|      key       | string |
+| (optional, unlimited) key | string |
+
+#### Returns
+An object containing the methods `then`, `withModifier`, `withModifiers`, and `perform`.
 
 ### `perform`
 
