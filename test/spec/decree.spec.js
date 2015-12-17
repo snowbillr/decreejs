@@ -338,6 +338,8 @@ describe('Decree JS', function() {
             sendEvent('keyup', 65);
             sendEvent('keydown', 66);
             sendEvent('keyup', 66);
+
+            expect(wasCallbackCalled).toBe(true);
         });
     });
 
