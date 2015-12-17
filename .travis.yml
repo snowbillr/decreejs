@@ -1,0 +1,7 @@
+language: javascript
+install:
+  - npm install
+  - bower install
+script:
+  - grunt karma
+  - grunt dist
